@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ether Transcript Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-container": "#000311",
+                        "secondary-dim": "#4b5366",
+                        "on-tertiary": "#fef6ff",
+                        "tertiary": "#695781",
+                        "on-tertiary-fixed-variant": "#5e4c75",
+                        "on-secondary": "#f9f8ff",
+                        "tertiary-dim": "#5d4b74",
+                        "secondary": "#575f72",
+                        "on-tertiary-fixed": "#413057",
+                        "on-secondary-container": "#4a5264",
+                        "surface-container": "#eaeff2",
+                        "primary-fixed-dim": "#317bef",
+                        "on-surface": "#2c3437",
+                        "secondary-fixed": "#dbe2f9",
+                        "primary": "#005bc4",
+                        "tertiary-fixed-dim": "#d6c0f0",
+                        "error-dim": "#67040d",
+                        "inverse-primary": "#4d8eff",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f0f4f7",
+                        "tertiary-container": "#e4ceff",
+                        "on-secondary-fixed-variant": "#545b6e",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#0b0f10",
+                        "error-container": "#fa746f",
+                        "surface-container-highest": "#dce4e8",
+                        "on-error-container": "#6e0a12",
+                        "secondary-container": "#dbe2f9",
+                        "secondary-fixed-dim": "#cdd4eb",
+                        "surface-dim": "#d4dbdf",
+                        "on-error": "#fff7f6",
+                        "on-background": "#2c3437",
+                        "tertiary-fixed": "#e4ceff",
+                        "outline": "#747c80",
+                        "surface-container-high": "#e3e9ed",
+                        "error": "#a83836",
+                        "on-surface-variant": "#596064",
+                        "on-tertiary-container": "#54436b",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed": "#383f51",
+                        "primary-fixed": "#4388fd",
+                        "on-primary-fixed": "#000000",
+                        "primary-container": "#4388fd",
+                        "outline-variant": "#acb3b7",
+                        "surface-variant": "#dce4e8",
+                        "surface": "#f7f9fb",
+                        "on-primary": "#f9f8ff",
+                        "primary-dim": "#004fad",
+                        "on-primary-fixed-variant": "#001435",
+                        "inverse-on-surface": "#9a9d9f",
+                        "surface-tint": "#005bc4"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #2c3437;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased bg-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none">
+<div class="flex justify-between items-center h-16 px-6 lg:px-12 w-full max-w-[1440px] mx-auto">
+<a class="active:scale-95 cursor-pointer transition-transform text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tighter flex items-center gap-2 font-['Inter'] antialiased tracking-tight" href="/">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400" data-icon="analytics">analytics</span>
+<span>Ether Transcript</span>
+</a>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:bg-slate-50 transition-all cursor-pointer p-2 rounded-full" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-slate-500 hover:bg-slate-50 transition-all cursor-pointer p-2 rounded-full" data-icon="settings">settings</span>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-12 px-6 lg:px-12 w-full max-w-[1440px] mx-auto">
+<!-- Dashboard Greeting -->
+<div class="mb-12">
+<h1 class="text-4xl font-extrabold text-on-surface tracking-tight mb-2">Atmospheric Precision</h1>
+<p class="text-on-surface-variant text-lg">Curation of your organizational intelligence.</p>
+</div>
+<!-- Upload Section (Top Section) -->
+<section class="mb-16">
+<div class="bg-surface-container-lowest rounded-xl p-1 w-full shadow-sm">
+<div class="bg-surface-container-low/50 border-2 border-dashed border-outline-variant/20 rounded-xl flex flex-col items-center justify-center py-16 px-8 transition-colors hover:bg-surface-container-low">
+<div class="bg-primary/5 p-4 rounded-full mb-6">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h2 class="text-2xl font-bold text-on-surface mb-2">Upload Transcripts</h2>
+<p class="text-on-surface-variant mb-8 text-center max-w-md">Drag and drop your audio transcripts here or use the curator tool to select local files.</p>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<button class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-semibold rounded-lg shadow-lg shadow-primary/10 active:scale-95 transition-all">
+                            Browse Files
+                        </button>
+<span class="text-xs font-medium uppercase tracking-widest text-slate-400">Supported: .TXT, .VTT</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Meetings (Bottom Section) -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold text-on-surface tracking-tight">Recent Meetings</h3>
+<button class="text-primary font-semibold text-sm hover:underline">View Archive</button>
+</div>
+<div class="grid gap-4">
+<!-- Meeting Row 1 -->
+<div class="group bg-surface-container-lowest hover:bg-surface-bright p-6 rounded-xl transition-all duration-300 flex flex-col md:flex-row items-center gap-6 cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="groups">groups</span>
+</div>
+<div class="flex-grow">
+<h4 class="text-lg font-bold text-on-surface mb-1">Q4 Strategy Sync: Architecture Alignment</h4>
+<p class="text-sm text-on-surface-variant">October 24, 2023 • 10:30 AM</p>
+</div>
+<div class="flex items-center gap-8 md:gap-12">
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">4</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Transcripts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">12</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Actions</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-1 text-emerald-600">
+<span class="text-xl font-bold">85%</span>
+<span class="material-symbols-outlined text-sm" data-icon="trending_up" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Sentiment</span>
+</div>
+</div>
+<div class="flex-shrink-0 ml-4">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Meeting Row 2 -->
+<div class="group bg-surface-container-lowest hover:bg-surface-bright p-6 rounded-xl transition-all duration-300 flex flex-col md:flex-row items-center gap-6 cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="record_voice_over">record_voice_over</span>
+</div>
+<div class="flex-grow">
+<h4 class="text-lg font-bold text-on-surface mb-1">Product Roadmap: Core UI Overhaul</h4>
+<p class="text-sm text-on-surface-variant">October 22, 2023 • 2:00 PM</p>
+</div>
+<div class="flex items-center gap-8 md:gap-12">
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">2</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Transcripts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">7</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Actions</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-1 text-primary">
+<span class="text-xl font-bold">92%</span>
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Sentiment</span>
+</div>
+</div>
+<div class="flex-shrink-0 ml-4">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Meeting Row 3 -->
+<div class="group bg-surface-container-lowest hover:bg-surface-bright p-6 rounded-xl transition-all duration-300 flex flex-col md:flex-row items-center gap-6 cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chat_bubble">chat_bubble</span>
+</div>
+<div class="flex-grow">
+<h4 class="text-lg font-bold text-on-surface mb-1">Customer Success: Ether One Feedback</h4>
+<p class="text-sm text-on-surface-variant">October 20, 2023 • 11:15 AM</p>
+</div>
+<div class="flex items-center gap-8 md:gap-12">
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">1</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Transcripts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xl font-bold text-on-surface">18</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Actions</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-1 text-slate-600">
+<span class="text-xl font-bold">71%</span>
+<span class="material-symbols-outlined text-sm" data-icon="balance">balance</span>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Sentiment</span>
+</div>
+</div>
+<div class="flex-shrink-0 ml-4">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-8 mt-auto bg-slate-50 dark:bg-slate-950 no-border">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 gap-4 max-w-[1440px] mx-auto">
+<p class="text-xs font-medium uppercase tracking-widest text-slate-400">© 2024 Editorial Ether. Atmospheric Precision.</p>
+<div class="flex gap-6">
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors" href="#">Privacy</a>
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors" href="#">Terms</a>
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

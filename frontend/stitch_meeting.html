@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#f9f8ff",
+              "on-primary-fixed-variant": "#001435",
+              "secondary-fixed": "#dbe2f9",
+              "on-tertiary-fixed": "#413057",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#d6c0f0",
+              "background": "#f7f9fb",
+              "on-surface": "#2c3437",
+              "on-secondary-container": "#4a5264",
+              "error-dim": "#67040d",
+              "surface-tint": "#005bc4",
+              "surface-container-highest": "#dce4e8",
+              "tertiary-dim": "#5d4b74",
+              "surface-container-high": "#e3e9ed",
+              "on-tertiary-fixed-variant": "#5e4c75",
+              "on-tertiary": "#fef6ff",
+              "tertiary-fixed": "#e4ceff",
+              "primary-fixed-dim": "#317bef",
+              "outline-variant": "#acb3b7",
+              "on-tertiary-container": "#54436b",
+              "surface-container-low": "#f0f4f7",
+              "error": "#a83836",
+              "inverse-surface": "#0b0f10",
+              "on-surface-variant": "#596064",
+              "on-error": "#fff7f6",
+              "surface-container": "#eaeff2",
+              "surface-dim": "#d4dbdf",
+              "on-secondary-fixed": "#383f51",
+              "secondary": "#575f72",
+              "tertiary": "#695781",
+              "on-primary-fixed": "#000000",
+              "on-error-container": "#6e0a12",
+              "primary-container": "#4388fd",
+              "on-primary": "#f9f8ff",
+              "secondary-container": "#dbe2f9",
+              "outline": "#747c80",
+              "error-container": "#fa746f",
+              "surface": "#f7f9fb",
+              "primary-dim": "#004fad",
+              "secondary-fixed-dim": "#cdd4eb",
+              "inverse-on-surface": "#9a9d9f",
+              "on-primary-container": "#000311",
+              "surface-bright": "#f7f9fb",
+              "surface-variant": "#dce4e8",
+              "on-background": "#2c3437",
+              "primary": "#005bc4",
+              "secondary-dim": "#4b5366",
+              "on-secondary-fixed-variant": "#545b6e",
+              "primary-fixed": "#4388fd",
+              "tertiary-container": "#e4ceff",
+              "inverse-primary": "#4d8eff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="w-full sticky top-0 z-50 bg-slate-50/80 backdrop-blur-xl shadow-sm shadow-blue-900/5">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold text-slate-900 flex items-center gap-2 font-inter tracking-tight">
+<span class="material-symbols-outlined text-blue-600" data-icon="dashboard">dashboard</span>
+                Transcript Analysis
+            </div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-blue-500 transition-colors duration-200 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-blue-500 transition-colors duration-200 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow max-w-6xl mx-auto w-full px-6 py-12 pb-32">
+<!-- Header Section: Editorial Style -->
+<div class="mb-16 space-y-4">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold tracking-widest uppercase rounded-full">Product Strategy</span>
+<span class="text-on-surface-variant text-sm">October 24, 2023 • 45 mins</span>
+</div>
+<h1 class="text-5xl font-extrabold tracking-tight text-on-surface leading-tight max-w-3xl">
+                Q4 Roadmap Alignment &amp; Resource Allocation
+            </h1>
+<p class="text-lg text-on-surface-variant max-w-2xl font-light leading-relaxed">
+                Review of engineering capacity vs. high-priority features for the upcoming quarter. Alignment on key delivery milestones.
+            </p>
+</div>
+<!-- Sentiment Analysis Dashboard (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+<!-- Sentiment Timeline -->
+<div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-1">Sentiment Timeline</h3>
+<p class="text-2xl font-semibold">Generally Positive</p>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-1 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-primary"></span> High</span>
+<span class="flex items-center gap-1 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-secondary-container"></span> Neutral</span>
+<span class="flex items-center gap-1 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-error-container"></span> Low</span>
+</div>
+</div>
+<!-- Visual Timeline Visualization -->
+<div class="relative h-24 flex items-end gap-1">
+<!-- Dynamic Bars Placeholder -->
+<div class="flex-1 bg-primary h-1/2 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-primary h-3/4 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-primary h-full rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-secondary-container h-1/2 rounded-t-sm"></div>
+<div class="flex-1 bg-secondary-container h-1/3 rounded-t-sm"></div>
+<div class="flex-1 bg-error-container h-1/4 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-error-container h-1/2 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-secondary-container h-2/3 rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-3/4 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-primary h-full rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-primary h-5/6 rounded-t-sm opacity-60"></div>
+<div class="flex-1 bg-primary h-4/5 rounded-t-sm opacity-60"></div>
+</div>
+</div>
+<!-- Core Metrics -->
+<div class="md:col-span-4 bg-surface-container-low p-8 rounded-xl flex flex-col justify-between">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-4">Focus Score</h3>
+<div class="flex items-center justify-center relative">
+<svg class="w-32 h-32 transform -rotate-90">
+<circle class="text-surface-container-highest" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="351.85" stroke-dashoffset="52.77" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="text-3xl font-bold">85%</span>
+</div>
+</div>
+<p class="text-xs text-center text-on-surface-variant mt-4">High topical consistency detected throughout the call.</p>
+</div>
+</div>
+<!-- Decisions Table -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="gavel">gavel</span>
+<h2 class="text-2xl font-bold tracking-tight">Key Decisions</h2>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-8 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Decision</th>
+<th class="px-8 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Rationale</th>
+<th class="px-8 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-right">Owner</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6 font-medium">De-prioritize VR Beta for Q4</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm">Focus engineering resources on core API stability first.</td>
+<td class="px-8 py-6 text-right"><span class="px-3 py-1 bg-surface-container-high rounded-full text-xs">Sarah Chen</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6 font-medium">Adopt 'Atomic Design' for Web</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm">Streamline design-to-code handoff for next-gen UI.</td>
+<td class="px-8 py-6 text-right"><span class="px-3 py-1 bg-surface-container-high rounded-full text-xs">Marcus Bell</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Action Items Grid -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="task_alt">task_alt</span>
+<h2 class="text-2xl font-bold tracking-tight">Action Items</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Action Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary-fixed-dim" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase">High Priority</span>
+</div>
+<h4 class="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">Refactor authentication flow</h4>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">Update the JWT implementation to support multi-device session management.</p>
+<div class="flex justify-between items-center pt-4 border-t border-surface-container">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" data-alt="close-up portrait of a professional man in a bright office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxyU3rBG_zWJyDpOAd3fYc7k3xhr74xZ04Gmsw1PoWwaTaFUosL4fqV6XXlE40L-eekwencbiy7JJQDGnMyH-mUg-lBZm0LfDwyDue8YbRuDAgg_LAkigoTxZjr9oGtmMcS6_kG4Wpj20Ls1HyLXGib1hoQP9ZvyMuxPpH93NyCZvUSzllgTafQicQ6X25yqqbB3I7pXdrnRcCbdYo6llJB5zscfrz8WlbF_SYrc419oBN8VQ3ooEHLdxOmGKd-EjdPJOwXRuDCL05"/>
+<span class="text-xs font-medium">David Miller</span>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">Oct 29</span>
+</div>
+</div>
+<!-- Action Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary-fixed-dim" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase">Design</span>
+</div>
+<h4 class="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">Review Q4 Brand Assets</h4>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">Final sign-off on the new editorial color palette for the marketing site.</p>
+<div class="flex justify-between items-center pt-4 border-t border-surface-container">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" data-alt="professional woman smiling in a bright airy studio environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0Mg42YIcuw8ZLvD7v8zQbxGqvOCjZCrwYg3ZWj74WAre1V24DzdrjYfPnxyhBFcXWslLRunNTFjoLQEaRIGsi4Do9a1UnKlEDknI3Nu0sRkuS3_MfO9zR-0tck_80T9PQ3qOANys6NILEDvNRrkRKFYg2TTVvq-rWLQX_-CSO71JXvLR0GxWjr1HCKrMVwYo7JmVCI8VRO-PRzWIBpvOqmgKjODVwBYuiK_f2xiqRx3qsqA2EsJgnV1NlgvTMMzTPCZHlNFWsEe-Y"/>
+<span class="text-xs font-medium">Elena Rodriguez</span>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">Nov 02</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Chatbot Interface (Floating Dock) -->
+<div class="fixed bottom-8 z-[100] flex flex-col right-8 items-end" id="chatbot-container">
+<!-- Chat Window (Hidden by default) -->
+<div class="hidden mb-4 w-80 h-96 bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-outline-variant/20 flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" id="chat-window">
+<!-- Header -->
+<div class="px-4 py-3 border-b border-surface-container flex items-center justify-between bg-primary/5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="smart_toy">smart_toy</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">AI Assistant</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('chat-window').classList.add('hidden')">
+<span class="material-symbols-outlined text-lg" data-icon="close">close</span>
+</button>
+</div>
+<!-- Chat History (Placeholder) -->
+<div class="flex-grow p-4 overflow-y-auto space-y-4 hide-scrollbar">
+<div class="bg-surface-container-low p-3 rounded-lg rounded-tl-none text-xs max-w-[85%] text-on-surface-variant">
+                Hello! How can I help you analyze this meeting transcript today?
+            </div>
+</div>
+<!-- Input Area -->
+<div class="p-3 border-t border-surface-container">
+<div class="relative flex items-center gap-2">
+<input class="w-full bg-surface-container-high/50 border-none rounded-lg py-2 pl-3 pr-10 text-xs focus:ring-1 focus:ring-primary transition-all" placeholder="Ask a question..." type="text"/>
+<button class="absolute right-1 text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Floating Toggle Button -->
+<button class="bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 active:scale-95 transition-all duration-200" onclick="document.getElementById('chat-window').classList.toggle('hidden')">
+<span class="material-symbols-outlined text-2xl" data-icon="smart_toy">smart_toy</span>
+</button>
+</div></body></html>
