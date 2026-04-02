@@ -64,3 +64,45 @@ def extract_meeting_insights(transcript_text: str):
         if 'response' in locals() and hasattr(response, 'text'):
             print(f"Response details: {response.text}")
         return {"decisions": [], "action_items": []}
+
+def answer_question_with_context(question: str, context_chunks: list):
+    """Passes the user's question and the retrieved ChromaDB chunks to Gemini."""
+    
+    # Format the retrieved chunks into a readable string for the AI
+    context_text = "\n\n".join(
+        [f"Source: {chunk['filename']}\nContent: {chunk['text']}" for chunk in context_chunks]
+    )
+
+    system_prompt = f"""
+    You are an intelligent meeting assistant. Answer the user's question using ONLY the provided context from meeting transcripts.
+    
+    Context from transcripts:
+    {context_text}
+    
+    Rules:
+    1. If the answer is not in the context, say "I cannot find the answer to this in the uploaded transcripts." Do not make up information.
+    2. You MUST cite your sources. After stating a fact, indicate the source file in brackets, e.g., (Source: Q3_planning.txt).
+    """
+
+    payload = {
+        "systemInstruction": {
+            "parts": [{"text": system_prompt}]
+        },
+        "contents": [{
+            "parts": [{"text": question}]
+        }]
+        # Notice we are NOT forcing JSON mode here, because we want a natural text response.
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        response = requests.post(GEMINI_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        answer = response.json()['candidates'][0]['content']['parts'][0]['text']
+        return answer
+        
+    except Exception as e:
+        print(f"Error answering question: {e}")
+        return "Sorry, I encountered an error while trying to answer your question."

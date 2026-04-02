@@ -1,9 +1,11 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import models
 from database import engine, get_db
-from llm_service import extract_meeting_insights
+from llm_service import extract_meeting_insights, answer_question_with_context
+from vector_service import add_transcript_to_vector_db, search_transcripts
+from pydantic import BaseModel
 
 # Create the tables in MariaDB
 models.Base.metadata.create_all(bind=engine)
@@ -87,8 +89,53 @@ async def process_transcript(
 
     db.commit()
 
+    # Add the transcript to the Vector Database for Chatbot searching
+    add_transcript_to_vector_db(
+        transcript_id=transcript.id, 
+        filename=transcript.filename, 
+        content=transcript.content
+    )
+
     return {
         "message": "Processing complete",
         "decisions_extracted": len(insights.get("decisions", [])),
         "action_items_extracted": len(insights.get("action_items", []))
+    }
+
+class ChatRequest(BaseModel):
+    question: str
+    transcript_id: Optional[int] = None  # Allow frontend to specify which meeting
+
+@app.post("/chat/")
+async def chat_with_transcripts(request: ChatRequest):
+    # 1. Search ChromaDB, passing the transcript_id if provided by the frontend
+    search_results = search_transcripts(
+        query=request.question, 
+        n_results=5, 
+        transcript_id=request.transcript_id
+    )
+    
+    # 2. Package the results cleanly
+    context_chunks = []
+    if search_results['documents'] and len(search_results['documents'][0]) > 0:
+        docs = search_results['documents'][0]
+        metadatas = search_results['metadatas'][0]
+        
+        for i in range(len(docs)):
+            context_chunks.append({
+                "text": docs[i],
+                "filename": metadatas[i]["filename"]
+            })
+
+    # 3. If no chunks found, return early
+    if not context_chunks:
+        return {"answer": "I could not find any information regarding that in this meeting."}
+
+    # 4. Pass the context and the question to Gemini
+    answer = answer_question_with_context(request.question, context_chunks)
+    
+    return {
+        "question": request.question,
+        "answer": answer,
+        "sources_used": list(set([chunk["filename"] for chunk in context_chunks])) # Deduplicate sources
     }
