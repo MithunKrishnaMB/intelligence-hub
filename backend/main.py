@@ -6,11 +6,20 @@ from database import engine, get_db
 from llm_service import extract_meeting_insights, answer_question_with_context, analyze_meeting_sentiment
 from vector_service import add_transcript_to_vector_db, search_transcripts
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create the tables in MariaDB
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Meeting Intelligence Hub API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, change this to your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ALLOWED_EXTENSIONS = {".txt", ".vtt"}
 
@@ -69,7 +78,13 @@ async def process_transcript(
     insights = extract_meeting_insights(transcript.content)
     sentiment_data = analyze_meeting_sentiment(transcript.content)
 
-    # 3. Store Decisions & Action Items
+    # 3. Update Transcript Metadata
+    # We safely extract the metadata, defaulting to empty dictionary if missing
+    metadata = insights.get("metadata", {})
+    transcript.meeting_date = metadata.get("meeting_date", "Unknown Date")
+    transcript.speakers_identified = metadata.get("speakers_identified", 0)
+
+    # 4. Store Decisions & Action Items
     for dec_text in insights.get("decisions", []):
         db.add(models.Decision(transcript_id=transcript.id, content=dec_text))
 
@@ -81,7 +96,7 @@ async def process_transcript(
             due_date=item.get("due_date", "Not specified")
         ))
 
-    # 4. --- NEW: Store Sentiment Segments ---
+    # 5. Store Sentiment Segments
     for seg in sentiment_data.get("segments", []):
         db.add(models.SegmentSentiment(
             transcript_id=transcript.id,
@@ -90,7 +105,7 @@ async def process_transcript(
             vibe=seg.get("vibe", "neutral")
         ))
 
-    # 5. --- NEW: Store Speaker Sentiments ---
+    # 6. Store Speaker Sentiments
     for spk in sentiment_data.get("speakers", []):
         db.add(models.SpeakerSentiment(
             transcript_id=transcript.id,
@@ -101,7 +116,7 @@ async def process_transcript(
 
     db.commit()
 
-    # 6. Add to Vector DB for the Chatbot (Day 4)
+    # 7. Add to Vector DB for the Chatbot
     add_transcript_to_vector_db(transcript.id, transcript.filename, transcript.content)
 
     return {
@@ -149,3 +164,35 @@ async def chat_with_transcripts(request: ChatRequest):
         "answer": answer,
         "sources_used": list(set([chunk["filename"] for chunk in context_chunks])) # Deduplicate sources
     }
+
+@app.get("/dashboard/")
+async def get_dashboard_stats(db: Session = Depends(get_db)):
+    # Fetch all transcripts ordered by newest first
+    transcripts = db.query(models.Transcript).order_by(models.Transcript.upload_date.desc()).all()
+    
+    dashboard_data = []
+    
+    for t in transcripts:
+        # Count action items and decisions for this specific transcript
+        actions_count = db.query(models.ActionItem).filter(models.ActionItem.transcript_id == t.id).count()
+        decisions_count = db.query(models.Decision).filter(models.Decision.transcript_id == t.id).count()
+        
+        # Format the date
+        formatted_date = t.upload_date.isoformat() + "Z" if t.upload_date else None
+        
+        dashboard_data.append({
+            "id": str(t.id),
+            "icon": "groups", # Defaulting to groups icon
+            "iconBgClass": "bg-secondary-container",
+            "iconColorClass": "text-on-secondary-container",
+            "title": t.filename,
+            "date": formatted_date,
+            "transcripts": 1,
+            "actions": actions_count,
+            "decisions": decisions_count,
+            "sentiment": 85, # Hardcoded for now, can be calculated from segments later
+            "sentimentIcon": "trending_up",
+            "sentimentColorClass": "text-emerald-600"
+        })
+        
+    return dashboard_data

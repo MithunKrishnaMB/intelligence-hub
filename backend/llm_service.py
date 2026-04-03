@@ -13,10 +13,16 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.
 def extract_meeting_insights(transcript_text: str):
     system_prompt = """
     You are an expert meeting assistant. Analyze the following meeting transcript.
-    Extract the key decisions made and the action items assigned.
+    Extract the date of the meeting, the number of unique speakers, the key decisions made, and the action items assigned.
+    
+    If the exact meeting date is not explicitly mentioned, try to infer it or return "Unknown".
     
     You MUST respond with a valid JSON object in this exact format:
     {
+      "metadata": {
+        "meeting_date": "October 24, 2023",
+        "speakers_identified": 4
+      },
       "decisions": [
         "The team agreed to deploy the new UI on Friday.",
         "Budget for Q3 marketing was approved."
@@ -31,7 +37,6 @@ def extract_meeting_insights(transcript_text: str):
     }
     """
 
-    # Gemini API payload structure
     payload = {
         "systemInstruction": {
             "parts": [{"text": system_prompt}]
@@ -52,18 +57,12 @@ def extract_meeting_insights(transcript_text: str):
         response = requests.post(GEMINI_URL, headers=headers, json=payload)
         response.raise_for_status()
         
-        # Extract the text from Gemini's specific response structure
         raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
-        
-        # Because we set responseMimeType to application/json, it is guaranteed to be clean JSON
         return json.loads(raw_content.strip())
         
     except Exception as e:
         print(f"Error calling Gemini or parsing JSON: {e}")
-        # Print detailed error from Google if available to help with debugging
-        if 'response' in locals() and hasattr(response, 'text'):
-            print(f"Response details: {response.text}")
-        return {"decisions": [], "action_items": []}
+        return {"metadata": {}, "decisions": [], "action_items": []}
 
 def analyze_meeting_sentiment(transcript_text: str):
     system_prompt = """
