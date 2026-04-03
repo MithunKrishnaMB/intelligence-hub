@@ -13,6 +13,7 @@ class Transcript(Base):
     upload_date = Column(DateTime, default=datetime.datetime.utcnow)
     meeting_date = Column(String(50), nullable=True) 
     speakers_identified = Column(Integer, default=0)
+    overall_sentiment_score = Column(Integer, default=50)
 
     # Establish relationships
     decisions = relationship("Decision", back_populates="transcript", cascade="all, delete-orphan")

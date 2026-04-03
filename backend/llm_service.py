@@ -68,11 +68,13 @@ def analyze_meeting_sentiment(transcript_text: str):
     system_prompt = """
     You are an expert behavioral analyst. Analyze the tone, sentiment, and vibe of the following meeting transcript.
     
-    1. Break the meeting down into chronological logical segments.
-    2. Analyze the overall sentiment of each individual speaker.
+    1. Estimate an overall sentiment score for the entire meeting on a scale of 0 to 100 (where 0 is completely negative/conflict-heavy, 50 is neutral, and 100 is completely positive/enthusiastic).
+    2. Break the meeting down into chronological logical segments.
+    3. Analyze the overall sentiment of each individual speaker.
     
     You MUST respond with a valid JSON object in this exact format:
     {
+      "overall_sentiment_score": 85,
       "segments": [
         {
           "segment_index": 1,
@@ -103,15 +105,9 @@ def analyze_meeting_sentiment(transcript_text: str):
     """
 
     payload = {
-        "systemInstruction": {
-            "parts": [{"text": system_prompt}]
-        },
-        "contents": [{
-            "parts": [{"text": transcript_text}]
-        }],
-        "generationConfig": {
-            "responseMimeType": "application/json"
-        }
+        "systemInstruction": {"parts": [{"text": system_prompt}]},
+        "contents": [{"parts": [{"text": transcript_text}]}],
+        "generationConfig": {"responseMimeType": "application/json"}
     }
 
     headers = {"Content-Type": "application/json"}
@@ -119,13 +115,11 @@ def analyze_meeting_sentiment(transcript_text: str):
     try:
         response = requests.post(GEMINI_URL, headers=headers, json=payload)
         response.raise_for_status()
-        
         raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
         return json.loads(raw_content.strip())
-        
     except Exception as e:
         print(f"Error calling Gemini for sentiment analysis: {e}")
-        return {"segments": [], "speakers": []}
+        return {"overall_sentiment_score": 50, "segments": [], "speakers": []}
 
 def answer_question_with_context(question: str, context_chunks: list):
     """Passes the user's question and the retrieved ChromaDB chunks to Gemini."""

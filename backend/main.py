@@ -83,6 +83,7 @@ async def process_transcript(
     metadata = insights.get("metadata", {})
     transcript.meeting_date = metadata.get("meeting_date", "Unknown Date")
     transcript.speakers_identified = metadata.get("speakers_identified", 0)
+    transcript.overall_sentiment_score = sentiment_data.get("overall_sentiment_score", 50)
 
     # 4. Store Decisions & Action Items
     for dec_text in insights.get("decisions", []):
@@ -179,20 +180,33 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         
         # Format the date
         formatted_date = t.upload_date.isoformat() + "Z" if t.upload_date else None
+
+        # Determine UI colors and icons based on the AI's score
+        score = t.overall_sentiment_score
+        if score >= 70:
+            sentiment_icon = "trending_up"
+            sentiment_color = "text-emerald-600"
+        elif score >= 40:
+            sentiment_icon = "balance"
+            sentiment_color = "text-yellow-600"
+        else:
+            sentiment_icon = "trending_down"
+            sentiment_color = "text-red-600"
         
         dashboard_data.append({
             "id": str(t.id),
-            "icon": "groups", # Defaulting to groups icon
+            "icon": "groups",
             "iconBgClass": "bg-secondary-container",
             "iconColorClass": "text-on-secondary-container",
             "title": t.filename,
-            "date": formatted_date,
+            "date": t.upload_date.isoformat() + "Z" if t.upload_date else None,
             "transcripts": 1,
             "actions": actions_count,
             "decisions": decisions_count,
-            "sentiment": 85, # Hardcoded for now, can be calculated from segments later
-            "sentimentIcon": "trending_up",
-            "sentimentColorClass": "text-emerald-600"
+            
+            "sentiment": score,
+            "sentimentIcon": sentiment_icon,
+            "sentimentColorClass": sentiment_color
         })
         
     return dashboard_data
