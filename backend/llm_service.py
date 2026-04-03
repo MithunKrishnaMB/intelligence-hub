@@ -65,6 +65,69 @@ def extract_meeting_insights(transcript_text: str):
             print(f"Response details: {response.text}")
         return {"decisions": [], "action_items": []}
 
+def analyze_meeting_sentiment(transcript_text: str):
+    system_prompt = """
+    You are an expert behavioral analyst. Analyze the tone, sentiment, and vibe of the following meeting transcript.
+    
+    1. Break the meeting down into chronological logical segments.
+    2. Analyze the overall sentiment of each individual speaker.
+    
+    You MUST respond with a valid JSON object in this exact format:
+    {
+      "segments": [
+        {
+          "segment_index": 1,
+          "topic": "Project Timeline Review",
+          "vibe": "conflict" 
+        },
+        {
+          "segment_index": 2,
+          "topic": "Budget Approval",
+          "vibe": "agreement" 
+        }
+      ],
+      "speakers": [
+        {
+          "speaker": "Alice",
+          "overall_vibe": "enthusiasm",
+          "alignment": "Strongly supported the new design direction."
+        },
+        {
+          "speaker": "Bob",
+          "overall_vibe": "frustration",
+          "alignment": "Expressed concerns about the tight deadline."
+        }
+      ]
+    }
+    
+    Valid vibes are strictly: "agreement", "conflict", "frustration", "enthusiasm", or "neutral".
+    """
+
+    payload = {
+        "systemInstruction": {
+            "parts": [{"text": system_prompt}]
+        },
+        "contents": [{
+            "parts": [{"text": transcript_text}]
+        }],
+        "generationConfig": {
+            "responseMimeType": "application/json"
+        }
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        response = requests.post(GEMINI_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
+        return json.loads(raw_content.strip())
+        
+    except Exception as e:
+        print(f"Error calling Gemini for sentiment analysis: {e}")
+        return {"segments": [], "speakers": []}
+
 def answer_question_with_context(question: str, context_chunks: list):
     """Passes the user's question and the retrieved ChromaDB chunks to Gemini."""
     

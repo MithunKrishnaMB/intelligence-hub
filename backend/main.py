@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import models
 from database import engine, get_db
-from llm_service import extract_meeting_insights, answer_question_with_context
+from llm_service import extract_meeting_insights, answer_question_with_context, analyze_meeting_sentiment
 from vector_service import add_transcript_to_vector_db, search_transcripts
 from pydantic import BaseModel
 
@@ -60,46 +60,56 @@ async def process_transcript(
     transcript_id: int = Path(..., description="The ID of the transcript to process"),
     db: Session = Depends(get_db)
 ):
-    # 1. Fetch the transcript from MariaDB
+    # 1. Fetch the transcript
     transcript = db.query(models.Transcript).filter(models.Transcript.id == transcript_id).first()
-    
     if not transcript:
         raise HTTPException(status_code=404, detail="Transcript not found")
 
-    # 2. Call the AI Service
+    # 2. Call the AI Services
     insights = extract_meeting_insights(transcript.content)
+    sentiment_data = analyze_meeting_sentiment(transcript.content)
 
-    # 3. Store Decisions in MariaDB
+    # 3. Store Decisions & Action Items
     for dec_text in insights.get("decisions", []):
-        new_decision = models.Decision(
-            transcript_id=transcript.id,
-            content=dec_text
-        )
-        db.add(new_decision)
+        db.add(models.Decision(transcript_id=transcript.id, content=dec_text))
 
-    # 4. Store Action Items in MariaDB
     for item in insights.get("action_items", []):
-        new_action = models.ActionItem(
+        db.add(models.ActionItem(
             transcript_id=transcript.id,
             owner=item.get("owner", "Unknown"),
             task=item.get("task", "Unknown"),
             due_date=item.get("due_date", "Not specified")
-        )
-        db.add(new_action)
+        ))
+
+    # 4. --- NEW: Store Sentiment Segments ---
+    for seg in sentiment_data.get("segments", []):
+        db.add(models.SegmentSentiment(
+            transcript_id=transcript.id,
+            segment_index=seg.get("segment_index", 0),
+            topic=seg.get("topic", "Unknown"),
+            vibe=seg.get("vibe", "neutral")
+        ))
+
+    # 5. --- NEW: Store Speaker Sentiments ---
+    for spk in sentiment_data.get("speakers", []):
+        db.add(models.SpeakerSentiment(
+            transcript_id=transcript.id,
+            speaker=spk.get("speaker", "Unknown"),
+            overall_vibe=spk.get("overall_vibe", "neutral"),
+            alignment=spk.get("alignment", "")
+        ))
 
     db.commit()
 
-    # Add the transcript to the Vector Database for Chatbot searching
-    add_transcript_to_vector_db(
-        transcript_id=transcript.id, 
-        filename=transcript.filename, 
-        content=transcript.content
-    )
+    # 6. Add to Vector DB for the Chatbot (Day 4)
+    add_transcript_to_vector_db(transcript.id, transcript.filename, transcript.content)
 
     return {
-        "message": "Processing complete",
+        "message": "Processing and Sentiment Analysis complete",
         "decisions_extracted": len(insights.get("decisions", [])),
-        "action_items_extracted": len(insights.get("action_items", []))
+        "action_items_extracted": len(insights.get("action_items", [])),
+        "segments_analyzed": len(sentiment_data.get("segments", [])),
+        "speakers_analyzed": len(sentiment_data.get("speakers", []))
     }
 
 class ChatRequest(BaseModel):
