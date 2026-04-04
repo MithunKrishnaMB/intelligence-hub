@@ -81,9 +81,12 @@ async def process_transcript(
     # 3. Update Transcript Metadata
     # We safely extract the metadata, defaulting to empty dictionary if missing
     metadata = insights.get("metadata", {})
-    transcript.meeting_date = metadata.get("meeting_date", "Unknown Date")
+    transcript.meeting_date = metadata.get("meeting_date", "")
     transcript.speakers_identified = metadata.get("speakers_identified", 0)
+    transcript.duration = metadata.get("duration", "")
+    transcript.summary = metadata.get("summary", "")
     transcript.overall_sentiment_score = sentiment_data.get("overall_sentiment_score", 50)
+    transcript.sentiment_comment = sentiment_data.get("sentiment_comment", "General discussion without strong sentiment swings.")
 
     # 4. Store Decisions & Action Items
     for dec_text in insights.get("decisions", []):
@@ -210,3 +213,36 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         })
         
     return dashboard_data
+
+@app.get("/transcripts/{transcript_id}/details")
+async def get_transcript_details(transcript_id: int, db: Session = Depends(get_db)):
+    # 1. Fetch the main transcript record
+    transcript = db.query(models.Transcript).filter(models.Transcript.id == transcript_id).first()
+    if not transcript:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    # 2. Fetch all related data
+    decisions = db.query(models.Decision).filter(models.Decision.transcript_id == transcript_id).all()
+    actions = db.query(models.ActionItem).filter(models.ActionItem.transcript_id == transcript_id).all()
+    segments = db.query(models.SegmentSentiment).filter(models.SegmentSentiment.transcript_id == transcript_id).order_by(models.SegmentSentiment.segment_index).all()
+    speakers = db.query(models.SpeakerSentiment).filter(models.SpeakerSentiment.transcript_id == transcript_id).all()
+
+    # 3. Format the date (handling potentially missing data)
+    formatted_date = transcript.upload_date.isoformat() + "Z" if transcript.upload_date else None
+
+    # 4. Package and return
+    return {
+        "id": transcript.id,
+        "filename": transcript.filename,
+        "meeting_date": transcript.meeting_date,
+        "upload_date": formatted_date,
+        "word_count": transcript.word_count,
+        "duration": transcript.duration,
+        "summary": transcript.summary,
+        "overall_sentiment_score": transcript.overall_sentiment_score,
+        "sentiment_comment": transcript.sentiment_comment,
+        "decisions": [{"id": d.id, "content": d.content} for d in decisions],
+        "action_items": [{"id": a.id, "owner": a.owner, "task": a.task, "due_date": a.due_date} for a in actions],
+        "segments": [{"id": s.id, "segment_index": s.segment_index, "topic": s.topic, "vibe": s.vibe} for s in segments],
+        "speakers": [{"id": sp.id, "speaker": sp.speaker, "overall_vibe": sp.overall_vibe, "alignment": sp.alignment} for sp in speakers]
+    }

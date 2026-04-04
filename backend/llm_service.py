@@ -22,6 +22,8 @@ def extract_meeting_insights(transcript_text: str):
       "metadata": {
         "meeting_date": "October 24, 2023",
         "speakers_identified": 4
+        "duration": "45 mins",
+        "summary": "Review of engineering capacity vs. high-priority features for the upcoming quarter. Alignment on key delivery milestones."
       },
       "decisions": [
         "The team agreed to deploy the new UI on Friday.",
@@ -35,6 +37,8 @@ def extract_meeting_insights(transcript_text: str):
         }
       ]
     }
+
+    If the meeting date, duration, or summary cannot be explicitly found or confidently generated, you MUST return an empty string "" instead of 'Unknown' or 'N/A'.
     """
 
     payload = {
@@ -69,12 +73,14 @@ def analyze_meeting_sentiment(transcript_text: str):
     You are an expert behavioral analyst. Analyze the tone, sentiment, and vibe of the following meeting transcript.
     
     1. Estimate an overall sentiment score for the entire meeting on a scale of 0 to 100 (where 0 is completely negative/conflict-heavy, 50 is neutral, and 100 is completely positive/enthusiastic).
-    2. Break the meeting down into chronological logical segments.
-    3. Analyze the overall sentiment of each individual speaker.
+    2. Provide a short, 1-sentence comment explaining this score (e.g., "High topical consistency detected throughout the meeting").
+    3. Break the meeting down into chronological logical segments.
+    4. Analyze the overall sentiment of each individual speaker.
     
     You MUST respond with a valid JSON object in this exact format:
     {
       "overall_sentiment_score": 85,
+      "sentiment_comment": "High topical consistency and collaborative problem-solving detected.",
       "segments": [
         {
           "segment_index": 1,
@@ -101,6 +107,7 @@ def analyze_meeting_sentiment(transcript_text: str):
       ]
     }
     
+    If you cannot confidently generate a sentiment comment, return an empty string "".
     Valid vibes are strictly: "agreement", "conflict", "frustration", "enthusiasm", or "neutral".
     """
 

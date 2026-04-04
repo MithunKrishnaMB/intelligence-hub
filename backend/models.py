@@ -14,6 +14,9 @@ class Transcript(Base):
     meeting_date = Column(String(50), nullable=True) 
     speakers_identified = Column(Integer, default=0)
     overall_sentiment_score = Column(Integer, default=50)
+    summary = Column(Text, nullable=True)
+    duration = Column(String(50), nullable=True)
+    sentiment_comment = Column(Text, nullable=True)
 
     # Establish relationships
     decisions = relationship("Decision", back_populates="transcript", cascade="all, delete-orphan")
