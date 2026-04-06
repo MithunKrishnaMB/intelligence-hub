@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import models
@@ -7,6 +7,8 @@ from llm_service import extract_meeting_insights, answer_question_with_context, 
 from vector_service import add_transcript_to_vector_db, search_transcripts
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
+from auth import get_password_hash, verify_password, create_access_token, get_current_user
 
 # Create the tables in MariaDB
 models.Base.metadata.create_all(bind=engine)
@@ -23,8 +25,45 @@ app.add_middleware(
 
 ALLOWED_EXTENSIONS = {".txt", ".vtt"}
 
+# Pydantic schemas for Auth
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+
+@app.post("/register")
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed_pwd = get_password_hash(user.password)
+    # Include the name when creating the database record
+    new_user = models.User(name=user.name, email=user.email, hashed_password=hashed_pwd)
+    db.add(new_user)
+    db.commit()
+    return {"message": "User created successfully"}
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/users/me")
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    # Now we return the name along with the email
+    return {
+        "id": current_user.id,
+        "name": current_user.name, 
+        "email": current_user.email
+    }
+
 @app.post("/upload/")
-async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     upload_summaries = []
 
     for file in files:
@@ -47,7 +86,8 @@ async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = 
         new_transcript = models.Transcript(
             filename=file.filename,
             content=content_text,
-            word_count=word_count
+            word_count=word_count,
+            user_id=current_user.id
         )
         db.add(new_transcript)
         db.commit()
@@ -67,10 +107,14 @@ async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = 
 @app.post("/transcripts/{transcript_id}/process")
 async def process_transcript(
     transcript_id: int = Path(..., description="The ID of the transcript to process"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     # 1. Fetch the transcript
-    transcript = db.query(models.Transcript).filter(models.Transcript.id == transcript_id).first()
+    transcript = db.query(models.Transcript).filter(
+        models.Transcript.id == transcript_id,
+        models.Transcript.user_id == current_user.id  # <-- The security lock
+    ).first()
+    
     if not transcript:
         raise HTTPException(status_code=404, detail="Transcript not found")
 
@@ -136,7 +180,18 @@ class ChatRequest(BaseModel):
     transcript_id: Optional[int] = None  # Allow frontend to specify which meeting
 
 @app.post("/chat/")
-async def chat_with_transcripts(request: ChatRequest):
+async def chat_with_transcripts(request: ChatRequest, current_user: models.User = Depends(get_current_user) ):
+    
+    # Prevent users from chatting with meetings they don't own
+    if request.transcript_id:
+        transcript = db.query(models.Transcript).filter(
+            models.Transcript.id == request.transcript_id,
+            models.Transcript.user_id == current_user.id
+        ).first()
+
+        if not transcript:
+            raise HTTPException(status_code=404, detail="Unauthorized to chat with this meeting")
+
     # 1. Search ChromaDB, passing the transcript_id if provided by the frontend
     search_results = search_transcripts(
         query=request.question, 
@@ -170,9 +225,11 @@ async def chat_with_transcripts(request: ChatRequest):
     }
 
 @app.get("/dashboard/")
-async def get_dashboard_stats(db: Session = Depends(get_db)):
-    # Fetch all transcripts ordered by newest first
-    transcripts = db.query(models.Transcript).order_by(models.Transcript.upload_date.desc()).all()
+async def get_dashboard_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # Only fetch transcripts belonging to THIS user
+    transcripts = db.query(models.Transcript).filter(
+        models.Transcript.user_id == current_user.id
+    ).order_by(models.Transcript.upload_date.desc()).all()
     
     dashboard_data = []
     
@@ -215,9 +272,13 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     return dashboard_data
 
 @app.get("/transcripts/{transcript_id}/details")
-async def get_transcript_details(transcript_id: int, db: Session = Depends(get_db)):
+async def get_transcript_details(transcript_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # 1. Fetch the main transcript record
-    transcript = db.query(models.Transcript).filter(models.Transcript.id == transcript_id).first()
+    transcript = db.query(models.Transcript).filter(
+        models.Transcript.id == transcript_id,
+        models.Transcript.user_id == current_user.id
+    ).first()
+    
     if not transcript:
         raise HTTPException(status_code=404, detail="Transcript not found")
 

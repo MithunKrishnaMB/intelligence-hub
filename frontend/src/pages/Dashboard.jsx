@@ -11,10 +11,20 @@ export default function Dashboard() {
   // Fetch real data from FastAPI
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/dashboard/");
+      const token = localStorage.getItem("token");
+      
+      const response = await fetch("http://127.0.0.1:8000/dashboard/", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
       if (response.ok) {
         const data = await response.json();
         setMeetings(data);
+      } else if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);

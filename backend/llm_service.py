@@ -49,7 +49,8 @@ def extract_meeting_insights(transcript_text: str):
             "parts": [{"text": transcript_text}]
         }],
         "generationConfig": {
-            "responseMimeType": "application/json"
+            "responseMimeType": "application/json",
+            "temperature": 0.0
         }
     }
 
@@ -114,7 +115,10 @@ def analyze_meeting_sentiment(transcript_text: str):
     payload = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
         "contents": [{"parts": [{"text": transcript_text}]}],
-        "generationConfig": {"responseMimeType": "application/json"}
+        "generationConfig": {
+          "responseMimeType": "application/json",
+          "temperature": 0.0
+          }
     }
 
     headers = {"Content-Type": "application/json"}

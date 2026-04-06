@@ -58,6 +58,8 @@ export default function UploadSection({ onUploadComplete }) {
     setIsProcessing(true);
     setStepIndex(0);
 
+    const token = localStorage.getItem("token");
+
     const formData = new FormData();
     selectedFiles.forEach(file => {
       formData.append("files", file);
@@ -68,6 +70,9 @@ export default function UploadSection({ onUploadComplete }) {
       setStepIndex(1);
       const uploadRes = await fetch("http://127.0.0.1:8000/upload/", {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
         body: formData,
       });
       
@@ -81,6 +86,9 @@ export default function UploadSection({ onUploadComplete }) {
             setStepIndex(3);
             await fetch(`http://127.0.0.1:8000/transcripts/${summary.transcript_id}/process`, {
                 method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
             });
         }
         

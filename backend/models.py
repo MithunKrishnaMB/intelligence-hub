@@ -3,6 +3,16 @@ from sqlalchemy.orm import relationship
 from database import Base
 import datetime
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255)) # <-- NEW: Add the name column
+    email = Column(String(255), unique=True, index=True)
+    hashed_password = Column(String(255))
+    
+    transcripts = relationship("Transcript", back_populates="owner", cascade="all, delete-orphan")
+
 class Transcript(Base):
     __tablename__ = "transcripts"
 
@@ -17,8 +27,10 @@ class Transcript(Base):
     summary = Column(Text, nullable=True)
     duration = Column(String(50), nullable=True)
     sentiment_comment = Column(Text, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
 
     # Establish relationships
+    owner = relationship("User", back_populates="transcripts")
     decisions = relationship("Decision", back_populates="transcript", cascade="all, delete-orphan")
     action_items = relationship("ActionItem", back_populates="transcript", cascade="all, delete-orphan")
     segments = relationship("SegmentSentiment", back_populates="transcript", cascade="all, delete-orphan")
