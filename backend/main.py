@@ -180,7 +180,11 @@ class ChatRequest(BaseModel):
     transcript_id: Optional[int] = None  # Allow frontend to specify which meeting
 
 @app.post("/chat/")
-async def chat_with_transcripts(request: ChatRequest, current_user: models.User = Depends(get_current_user) ):
+async def chat_with_transcripts(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
     
     # Prevent users from chatting with meetings they don't own
     if request.transcript_id:

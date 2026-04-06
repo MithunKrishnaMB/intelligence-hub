@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Import all your pages
 import Dashboard from './pages/Dashboard';
 import MeetingDetail from './pages/MeetingDetail';
 import Login from './pages/Login';

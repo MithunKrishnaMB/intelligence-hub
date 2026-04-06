@@ -33,10 +33,14 @@ export default function Chatbot({ transcriptId }) {
     setIsLoading(true);
 
     try {
+      // 1. Grab the token from local storage
+      const token = localStorage.getItem("token");
+
       const response = await fetch("http://127.0.0.1:8000/chat/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // 2. Attach the token here
         },
         body: JSON.stringify({
           question: userMessage,
@@ -44,7 +48,12 @@ export default function Chatbot({ transcriptId }) {
         })
       });
 
-      if (!response.ok) throw new Error("Failed to fetch response");
+      if (!response.ok) {
+         if (response.status === 401) {
+            throw new Error("Session expired. Please log in again.");
+         }
+         throw new Error("Failed to fetch response");
+      }
       
       const data = await response.json();
 
@@ -59,7 +68,7 @@ export default function Chatbot({ transcriptId }) {
       console.error("Chat Error:", error);
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        text: "Sorry, I encountered an error trying to process your request." 
+        text: "Sorry, I encountered an error: " + error.message 
       }]);
     } finally {
       setIsLoading(false);
