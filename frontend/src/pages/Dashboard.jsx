@@ -41,7 +41,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col antialiased bg-surface text-on-surface">
       <Header />
-      <main className="flex-grow pt-24 pb-12 px-6 lg:px-12 w-full max-w-[1440px] mx-auto">
+      <main className="flex-grow pt-24 pb-12 px-6 md:px-8 w-full">
         <div className="mb-12">
           <h1 className="text-4xl font-extrabold text-on-surface tracking-tight mb-2">Atmospheric Precision</h1>
           <p className="text-on-surface-variant text-lg">Curation of your organizational intelligence.</p>

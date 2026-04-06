@@ -51,7 +51,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all">
-      <div className="flex justify-between items-center h-16 px-6 lg:px-12 w-full max-w-[1440px] mx-auto">
+      <div className="flex justify-between items-center h-16 px-6 md:px-8 w-full">
         
         {/* Left Side: Brand Logo */}
         <Link to="/" className="active:scale-95 cursor-pointer transition-transform text-lg font-bold text-on-surface tracking-tighter flex items-center gap-2 font-['Inter'] antialiased">

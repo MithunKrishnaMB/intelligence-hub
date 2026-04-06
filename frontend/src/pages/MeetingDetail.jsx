@@ -23,7 +23,7 @@ export default function MeetingDetail() {
           headers: {
             "Authorization": `Bearer ${token}`
           }});
-          
+
         if (!response.ok) throw new Error("Failed to fetch meeting details");
         const data = await response.json();
         setMeetingData(data);
@@ -52,7 +52,7 @@ export default function MeetingDetail() {
     <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow max-w-[1440px] mx-auto w-full px-6 py-12 pb-32 pt-24">
+      <main className="flex-grow w-full px-6 md:px-8 py-12 pb-32 pt-24">
         {/* Back Button */}
         <button onClick={() => navigate('/')} className="flex items-center gap-2 text-slate-500 hover:text-primary mb-6 transition-colors">
             <ArrowLeft size={16} /> Back to Dashboard
