@@ -118,62 +118,71 @@ async def process_transcript(
     if not transcript:
         raise HTTPException(status_code=404, detail="Transcript not found")
 
-    # 2. Call the AI Services
-    insights = extract_meeting_insights(transcript.content)
-    sentiment_data = analyze_meeting_sentiment(transcript.content)
+    try:
+        # 2. Call the AI Services
+        insights = extract_meeting_insights(transcript.content)
+        sentiment_data = analyze_meeting_sentiment(transcript.content)
 
-    # 3. Update Transcript Metadata
-    # We safely extract the metadata, defaulting to empty dictionary if missing
-    metadata = insights.get("metadata", {})
-    transcript.meeting_date = metadata.get("meeting_date", "")
-    transcript.speakers_identified = metadata.get("speakers_identified", 0)
-    transcript.duration = metadata.get("duration", "")
-    transcript.summary = metadata.get("summary", "")
-    transcript.overall_sentiment_score = sentiment_data.get("overall_sentiment_score", 50)
-    transcript.sentiment_comment = sentiment_data.get("sentiment_comment", "General discussion without strong sentiment swings.")
+        # 3. Update Transcript Metadata
+        # We safely extract the metadata, defaulting to empty dictionary if missing
+        metadata = insights.get("metadata", {})
+        transcript.meeting_date = metadata.get("meeting_date", "")
+        transcript.speakers_identified = metadata.get("speakers_identified", 0)
+        transcript.duration = metadata.get("duration", "")
+        transcript.summary = metadata.get("summary", "")
+        transcript.overall_sentiment_score = sentiment_data.get("overall_sentiment_score", 50)
+        transcript.sentiment_comment = sentiment_data.get("sentiment_comment", "General discussion without strong sentiment swings.")
 
-    # 4. Store Decisions & Action Items
-    for dec_text in insights.get("decisions", []):
-        db.add(models.Decision(transcript_id=transcript.id, content=dec_text))
+        # 4. Store Decisions & Action Items
+        for dec_text in insights.get("decisions", []):
+            db.add(models.Decision(transcript_id=transcript.id, content=dec_text))
 
-    for item in insights.get("action_items", []):
-        db.add(models.ActionItem(
-            transcript_id=transcript.id,
-            owner=item.get("owner", "Unknown"),
-            task=item.get("task", "Unknown"),
-            due_date=item.get("due_date", "Not specified")
-        ))
+        for item in insights.get("action_items", []):
+            db.add(models.ActionItem(
+                transcript_id=transcript.id,
+                owner=item.get("owner", "Unknown"),
+                task=item.get("task", "Unknown"),
+                due_date=item.get("due_date", "Not specified")
+            ))
 
-    # 5. Store Sentiment Segments
-    for seg in sentiment_data.get("segments", []):
-        db.add(models.SegmentSentiment(
-            transcript_id=transcript.id,
-            segment_index=seg.get("segment_index", 0),
-            topic=seg.get("topic", "Unknown"),
-            vibe=seg.get("vibe", "neutral")
-        ))
+        # 5. Store Sentiment Segments
+        for seg in sentiment_data.get("segments", []):
+            db.add(models.SegmentSentiment(
+                transcript_id=transcript.id,
+                segment_index=seg.get("segment_index", 0),
+                topic=seg.get("topic", "Unknown"),
+                vibe=seg.get("vibe", "neutral")
+            ))
 
-    # 6. Store Speaker Sentiments
-    for spk in sentiment_data.get("speakers", []):
-        db.add(models.SpeakerSentiment(
-            transcript_id=transcript.id,
-            speaker=spk.get("speaker", "Unknown"),
-            overall_vibe=spk.get("overall_vibe", "neutral"),
-            alignment=spk.get("alignment", "")
-        ))
+        # 6. Store Speaker Sentiments
+        for spk in sentiment_data.get("speakers", []):
+            db.add(models.SpeakerSentiment(
+                transcript_id=transcript.id,
+                speaker=spk.get("speaker", "Unknown"),
+                overall_vibe=spk.get("overall_vibe", "neutral"),
+                alignment=spk.get("alignment", "")
+            ))
 
-    db.commit()
+        db.commit()
 
-    # 7. Add to Vector DB for the Chatbot
-    add_transcript_to_vector_db(transcript.id, transcript.filename, transcript.content)
+        # 7. Add to Vector DB for the Chatbot
+        add_transcript_to_vector_db(transcript.id, transcript.filename, transcript.content)
 
-    return {
-        "message": "Processing and Sentiment Analysis complete",
-        "decisions_extracted": len(insights.get("decisions", [])),
-        "action_items_extracted": len(insights.get("action_items", [])),
-        "segments_analyzed": len(sentiment_data.get("segments", [])),
-        "speakers_analyzed": len(sentiment_data.get("speakers", []))
-    }
+        return {
+            "message": "Processing and Sentiment Analysis complete",
+            "decisions_extracted": len(insights.get("decisions", [])),
+            "action_items_extracted": len(insights.get("action_items", [])),
+            "segments_analyzed": len(sentiment_data.get("segments", [])),
+            "speakers_analyzed": len(sentiment_data.get("speakers", []))
+        }
+    
+    except Exception as e:
+        db.delete(transcript)
+        db.commit()
+        raise HTTPException(
+            status_code=503, 
+            detail="The AI service is temporarily overloaded. Please retry."
+        )
 
 class ChatRequest(BaseModel):
     question: str
@@ -193,40 +202,50 @@ async def chat_with_transcripts(
             models.Transcript.user_id == current_user.id
         ).first()
 
-        if not transcript:
-            raise HTTPException(status_code=404, detail="Unauthorized to chat with this meeting")
+    if not transcript:
+        raise HTTPException(status_code=404, detail="Unauthorized to chat with this meeting")
 
-    # 1. Search ChromaDB, passing the transcript_id if provided by the frontend
-    search_results = search_transcripts(
-        query=request.question, 
-        n_results=5, 
-        transcript_id=request.transcript_id
-    )
-    
-    # 2. Package the results cleanly
-    context_chunks = []
-    if search_results['documents'] and len(search_results['documents'][0]) > 0:
-        docs = search_results['documents'][0]
-        metadatas = search_results['metadatas'][0]
+    try:
+        # 1. Search ChromaDB, passing the transcript_id if provided by the frontend
+        search_results = search_transcripts(
+            query=request.question, 
+            n_results=5, 
+            transcript_id=request.transcript_id
+        )
         
-        for i in range(len(docs)):
-            context_chunks.append({
-                "text": docs[i],
-                "filename": metadatas[i]["filename"]
-            })
+        # 2. Package the results cleanly
+        context_chunks = []
+        if search_results['documents'] and len(search_results['documents'][0]) > 0:
+            docs = search_results['documents'][0]
+            metadatas = search_results['metadatas'][0]
+            
+            for i in range(len(docs)):
+                context_chunks.append({
+                    "text": docs[i],
+                    "filename": metadatas[i]["filename"]
+                })
 
-    # 3. If no chunks found, return early
-    if not context_chunks:
-        return {"answer": "I could not find any information regarding that in this meeting."}
+        # 3. If no chunks found, return early
+        if not context_chunks:
+            return {"answer": "I could not find any information regarding that in this meeting."}
 
-    # 4. Pass the context and the question to Gemini
-    answer = answer_question_with_context(request.question, context_chunks)
-    
-    return {
-        "question": request.question,
-        "answer": answer,
-        "sources_used": list(set([chunk["filename"] for chunk in context_chunks])) # Deduplicate sources
-    }
+        # 4. Pass the context and the question to Gemini
+        answer = answer_question_with_context(request.question, context_chunks)
+        
+        return {
+            "question": request.question,
+            "answer": answer,
+            "sources_used": list(set([chunk["filename"] for chunk in context_chunks])) # Deduplicate sources
+        }
+
+    except Exception as e:
+        db.delete(transcript)
+        db.commit()
+        raise HTTPException(
+            status_code=503, 
+            detail="The AI service is temporarily overloaded. Please retry."
+        )
+
 
 @app.get("/dashboard/")
 async def get_dashboard_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
@@ -311,3 +330,25 @@ async def get_transcript_details(transcript_id: int, db: Session = Depends(get_d
         "segments": [{"id": s.id, "segment_index": s.segment_index, "topic": s.topic, "vibe": s.vibe} for s in segments],
         "speakers": [{"id": sp.id, "speaker": sp.speaker, "overall_vibe": sp.overall_vibe, "alignment": sp.alignment} for sp in speakers]
     }
+
+@app.delete("/transcripts/{transcript_id}")
+async def delete_transcript(
+    transcript_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    # 1. Find the transcript, ensuring it belongs to the logged-in user
+    transcript = db.query(models.Transcript).filter(
+        models.Transcript.id == transcript_id,
+        models.Transcript.user_id == current_user.id
+    ).first()
+
+    # 2. If it doesn't exist, throw an error
+    if not transcript:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    # 3. Delete it from the database
+    db.delete(transcript)
+    db.commit()
+    
+    return {"message": "Meeting deleted successfully"}
