@@ -58,6 +58,8 @@ def extract_meeting_insights(transcript_text: str):
         }
       ]
     }
+
+    Thoroughly analyse the transcript to identify and extract due_date for action items. If no due_date is found, return an string stating "No due date found".
     """
 
     payload = {
