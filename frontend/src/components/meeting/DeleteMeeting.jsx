@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Trash2, Loader2 } from 'lucide-react';
 
 export default function DeleteMeeting({ transcriptId }) {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -16,7 +17,7 @@ export default function DeleteMeeting({ transcriptId }) {
 
     try {
       // 2. Call our new backend DELETE route
-      const response = await fetch(`http://127.0.0.1:8000/transcripts/${transcriptId}`, {
+      const response = await fetch(`${API_URL}/transcripts/${transcriptId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`

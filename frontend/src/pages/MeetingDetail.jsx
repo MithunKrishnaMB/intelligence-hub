@@ -10,6 +10,7 @@ import ExportPDF from '../components/meeting/ExportPDF'; // IMPORT NEW COMPONENT
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function MeetingDetail() {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -20,7 +21,7 @@ export default function MeetingDetail() {
     const fetchMeetingDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://127.0.0.1:8000/transcripts/${id}/details`, {
+        const response = await fetch(`${API_URL}/transcripts/${id}/details`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         

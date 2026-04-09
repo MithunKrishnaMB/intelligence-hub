@@ -5,6 +5,7 @@ import UploadSection from '../components/dashboard/UploadSection';
 import MeetingRow from '../components/dashboard/MeetingRow';
 
 export default function Dashboard() {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const [meetings, setMeetings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -13,7 +14,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       
-      const response = await fetch("http://127.0.0.1:8000/dashboard/", {
+      const response = await fetch(`${API_URL}/dashboard/`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }

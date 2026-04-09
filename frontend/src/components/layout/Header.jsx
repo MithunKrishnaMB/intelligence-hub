@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Activity, UserCircle, LogOut } from 'lucide-react';
 
 export default function Header() {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   
@@ -18,7 +19,7 @@ export default function Header() {
       if (!token) return;
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/users/me", {
+        const response = await fetch(`${API_URL}/users/me`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (response.ok) {

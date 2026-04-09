@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Secret key to sign the JWTs (Add a random string to your .env file as JWT_SECRET_KEY)
+# Secret key to sign the JWTs
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback_secret_key_change_in_production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 hours
@@ -19,7 +19,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 hours
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_password_hash(password: str) -> str:
-    # bcrypt requires bytes, so we encode the string
     pwd_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(pwd_bytes, salt)

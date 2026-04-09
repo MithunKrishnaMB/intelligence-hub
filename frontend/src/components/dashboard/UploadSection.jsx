@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UploadCloud, Loader2, BrainCircuit, FileText, X, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function UploadSection({ onUploadComplete }) {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   
@@ -50,7 +51,7 @@ export default function UploadSection({ onUploadComplete }) {
 
     try {
       // 1. Upload files
-      const uploadRes = await fetch("http://127.0.0.1:8000/upload/", {
+      const uploadRes = await fetch(`${API_URL}/upload/`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -62,7 +63,7 @@ export default function UploadSection({ onUploadComplete }) {
       // 2. Process all uploaded transcripts sequentially
       if (uploadData.summaries && uploadData.summaries.length > 0) {
         for (const summary of uploadData.summaries) {
-            const processRes = await fetch(`http://127.0.0.1:8000/transcripts/${summary.transcript_id}/process`, {
+            const processRes = await fetch(`${API_URL}/transcripts/${summary.transcript_id}/process`, {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${token}` }
             });

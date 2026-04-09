@@ -1,8 +1,23 @@
 import chromadb
 from chromadb.utils import embedding_functions
+import os
 
-# Initialize ChromaDB to save data locally in a folder named "chroma_data"
-chroma_client = chromadb.PersistentClient(path="./chroma_data")
+chroma_api_key = os.getenv("CHROMA_API_KEY")
+chroma_tenant = os.getenv("CHROMA_TENANT")
+chroma_database = os.getenv("CHROMA_DATABASE")
+
+if chroma_api_key and chroma_tenant and chroma_database:
+    # Use Chroma Cloud if credentials are provided in the environment (e.g., on Render)
+    chroma_client = chromadb.CloudClient(
+        tenant=chroma_tenant,
+        database=chroma_database,
+        api_key=chroma_api_key
+    )
+    print("Connected to Chroma Cloud.")
+else:
+    # Fallback to local ChromeDB for local development
+    chroma_client = chromadb.PersistentClient(path="./chroma_data")
+    print("Connected to local ChromaDB.")
 
 # Use the default, free, local embedding model
 sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")

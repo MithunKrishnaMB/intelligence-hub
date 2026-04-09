@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, User, Loader2 } from 'lucide-react';
 
 export default function Chatbot({ transcriptId }) {
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,7 @@ export default function Chatbot({ transcriptId }) {
       // 1. Grab the token from local storage
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://127.0.0.1:8000/chat/", {
+      const response = await fetch(`${API_URL}/chat/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
