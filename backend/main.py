@@ -106,6 +106,7 @@ async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = 
 
 @app.post("/transcripts/{transcript_id}/process")
 async def process_transcript(
+    background_tasks: BackgroundTasks,
     transcript_id: int = Path(..., description="The ID of the transcript to process"),
     db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
@@ -165,8 +166,8 @@ async def process_transcript(
 
         db.commit()
 
-        # 7. Add to Vector DB for the Chatbot
-        add_transcript_to_vector_db(transcript.id, transcript.filename, transcript.content)
+        # 7. Add to Vector DB for the Chatbot in the background
+        background_tasks.add_task(add_transcript_to_vector_db, transcript.id, transcript.filename, transcript.content)
 
         return {
             "message": "Processing and Sentiment Analysis complete",
