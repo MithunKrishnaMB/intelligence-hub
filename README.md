@@ -1,5 +1,10 @@
 # Meeting Intelligence Hub
 
+## Live Demo
+
+- [Website Link](https://intelligence-hub-eta.vercel.app/)
+- [Video of Demo](https://drive.google.com/file/d/1DGU9FLmC7F5jcaKX0OEvMwt5g5xdM7-K/view?usp=drive_link)
+
 ## The Problem
 Professionals spend countless hours manually reviewing meeting recordings and transcripts to compile action items, extract key decisions, and recall the contextual details of what was discussed. This tedious process often results in lost productivity, missed deadlines, and a lack of clear alignment on team objectives.
 
