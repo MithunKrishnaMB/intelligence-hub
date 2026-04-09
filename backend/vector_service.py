@@ -7,7 +7,6 @@ chroma_tenant = os.getenv("CHROMA_TENANT")
 chroma_database = os.getenv("CHROMA_DATABASE")
 
 if chroma_api_key and chroma_tenant and chroma_database:
-    # Use Chroma Cloud if credentials are provided in the environment (e.g., on Render)
     chroma_client = chromadb.CloudClient(
         tenant=chroma_tenant,
         database=chroma_database,
@@ -15,21 +14,18 @@ if chroma_api_key and chroma_tenant and chroma_database:
     )
     print("Connected to Chroma Cloud.")
 else:
-    # Fallback to local ChromeDB for local development
     chroma_client = chromadb.PersistentClient(path="./chroma_data")
     print("Connected to local ChromaDB.")
-
-# Use the default, free, local embedding model
-sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
-
-# Create or load a collection (like a table in SQL) for our transcripts
-collection = chroma_client.get_or_create_collection(
-    name="transcripts",
-    embedding_function=sentence_transformer_ef
-)
+    
+def get_collection():
+    """Lazy-loads the model and gets the collection only when needed"""
+    sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    return chroma_client.get_or_create_collection(
+        name="transcripts",
+        embedding_function=sentence_transformer_ef
+    )
 
 def chunk_text(text: str, chunk_size: int = 150, overlap: int = 30):
-    """Splits a long transcript into overlapping chunks of words."""
     words = text.split()
     chunks = []
     for i in range(0, len(words), chunk_size - overlap):
@@ -38,43 +34,33 @@ def chunk_text(text: str, chunk_size: int = 150, overlap: int = 30):
     return chunks
 
 def add_transcript_to_vector_db(transcript_id: int, filename: str, content: str):
-    """Chunks the text and stores it in ChromaDB with metadata for citations."""
     chunks = chunk_text(content)
-    
     documents = []
     metadatas = []
     ids = []
     
     for i, chunk in enumerate(chunks):
         documents.append(chunk)
-        # Store metadata so the AI can cite its sources later
         metadatas.append({"transcript_id": transcript_id, "filename": filename})
-        # Create a unique ID for each chunk
         ids.append(f"transcript_{transcript_id}_chunk_{i}")
         
-    # Add to ChromaDB
-    collection.add(
-        documents=documents,
-        metadatas=metadatas,
-        ids=ids
-    )
-    print(f"Added {len(chunks)} chunks for {filename} to ChromaDB.")
+    # Get the collection right here instead
+    collection = get_collection()
+    collection.add(documents=documents, metadatas=metadatas, ids=ids)
+    print(f"Added {len(chunks)} chunks for {filename} to Chroma.")
 
 def search_transcripts(query: str, n_results: int = 5, transcript_id: int = None):
-    """Searches the vector DB, optionally filtering by a specific transcript."""
+    # Get the collection right here instead
+    collection = get_collection()
     
     if transcript_id is not None:
-        # Search ONLY within the specific meeting using a metadata filter
-        results = collection.query(
+        return collection.query(
             query_texts=[query],
             n_results=n_results,
             where={"transcript_id": transcript_id} 
         )
     else:
-        # Global search across all meetings (useful for the Dashboard Home Page)
-        results = collection.query(
+        return collection.query(
             query_texts=[query],
             n_results=n_results
         )
-        
-    return results
