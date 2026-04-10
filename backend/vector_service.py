@@ -23,20 +23,23 @@ from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 class DirectGeminiEmbeddingFunction(EmbeddingFunction):
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents?key={api_key}"
+        # Use standard embedContent endpoint which is universally available
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={api_key}"
 
     def __call__(self, input: Documents) -> Embeddings:
-        requests_data = []
+        embeddings = []
         for text in input:
-            requests_data.append({
-                "model": "models/text-embedding-004",   
+            payload = {
+                "model": "models/gemini-embedding-001",   
                 "content": {"parts": [{"text": text}]}
-            })
+            }
+            res = requests.post(self.url, json=payload)
+            res.raise_for_status()
             
-        res = requests.post(self.url, json={"requests": requests_data})
-        res.raise_for_status()
-        
-        return [item.get("values", []) for item in res.json().get("embeddings", [])]
+            # The response structure is {"embedding": {"values": [...]}}
+            embeddings.append(res.json().get("embedding", {}).get("values", []))
+            
+        return embeddings
 
 def get_collection():
     """Uses Google's fast embeddings API natively to avoid dependency conflicts"""
