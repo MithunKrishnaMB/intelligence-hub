@@ -37,7 +37,7 @@ export default function Chatbot({ transcriptId }) {
       // 1. Grab the token from local storage
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`${API_URL}/chat/`, {
+      const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +53,8 @@ export default function Chatbot({ transcriptId }) {
          if (response.status === 401) {
             throw new Error("Session expired. Please log in again.");
          }
-         throw new Error("Failed to fetch response");
+         const errorData = await response.json().catch(() => ({}));
+         throw new Error(errorData.detail || `Server returned ${response.status}`);
       }
       
       const data = await response.json();

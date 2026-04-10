@@ -189,7 +189,7 @@ class ChatRequest(BaseModel):
     question: str
     transcript_id: Optional[int] = None  # Allow frontend to specify which meeting
 
-@app.post("/chat/")
+@app.post("/chat")
 async def chat_with_transcripts(
     request: ChatRequest,
     db: Session = Depends(get_db),
@@ -197,14 +197,15 @@ async def chat_with_transcripts(
 ):
     
     # Prevent users from chatting with meetings they don't own
+    transcript = None
     if request.transcript_id:
         transcript = db.query(models.Transcript).filter(
             models.Transcript.id == request.transcript_id,
             models.Transcript.user_id == current_user.id
         ).first()
 
-    if not transcript:
-        raise HTTPException(status_code=404, detail="Unauthorized to chat with this meeting")
+    if not transcript and request.transcript_id:
+        raise HTTPException(status_code=404, detail="Transcript ID not found in database or unauthorized.")
 
     try:
         # 1. Search ChromaDB, passing the transcript_id if provided by the frontend
