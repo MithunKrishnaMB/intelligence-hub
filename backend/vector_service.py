@@ -18,11 +18,12 @@ else:
     print("Connected to local ChromaDB.")
     
 def get_collection():
-    """Lazy-loads the model and gets the collection only when needed"""
-    sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    """Uses Google's fast embeddings API instead of a slow local PyTorch model"""
+    # Using Gemini for embeddings is 100x faster than downloading a PyTorch model to Render
+    gemini_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key=os.getenv("GEMINI_API_KEY"))
     return chroma_client.get_or_create_collection(
-        name="transcripts",
-        embedding_function=sentence_transformer_ef
+        name="transcripts_v2", 
+        embedding_function=gemini_ef
     )
 
 def chunk_text(text: str, chunk_size: int = 150, overlap: int = 30):
