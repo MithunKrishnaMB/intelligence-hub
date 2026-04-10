@@ -17,10 +17,30 @@ else:
     chroma_client = chromadb.PersistentClient(path="./chroma_data")
     print("Connected to local ChromaDB.")
     
+import requests
+from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
+
+class DirectGeminiEmbeddingFunction(EmbeddingFunction):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents?key={api_key}"
+
+    def __call__(self, input: Documents) -> Embeddings:
+        requests_data = []
+        for text in input:
+            requests_data.append({
+                "model": "models/text-embedding-004",   
+                "content": {"parts": [{"text": text}]}
+            })
+            
+        res = requests.post(self.url, json={"requests": requests_data})
+        res.raise_for_status()
+        
+        return [item.get("values", []) for item in res.json().get("embeddings", [])]
+
 def get_collection():
-    """Uses Google's fast embeddings API instead of a slow local PyTorch model"""
-    # Using Gemini for embeddings is 100x faster than downloading a PyTorch model to Render
-    gemini_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(api_key=os.getenv("GEMINI_API_KEY"))
+    """Uses Google's fast embeddings API natively to avoid dependency conflicts"""
+    gemini_ef = DirectGeminiEmbeddingFunction(api_key=os.getenv("GEMINI_API_KEY"))
     return chroma_client.get_or_create_collection(
         name="transcripts_v2", 
         embedding_function=gemini_ef
