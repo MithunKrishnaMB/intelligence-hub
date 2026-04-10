@@ -241,8 +241,7 @@ async def chat_with_transcripts(
         }
 
     except Exception as e:
-        db.delete(transcript)
-        db.commit()
+        print(f"Chatbot Exception: {e}")
         raise HTTPException(
             status_code=503, 
             detail="The AI service is temporarily overloaded. Please retry."
