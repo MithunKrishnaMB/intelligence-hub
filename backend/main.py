@@ -3,6 +3,8 @@ load_dotenv()
 
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path, status
+# pyrefly: ignore [missing-import]
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import models
@@ -15,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # pyrefly: ignore [missing-import]
 from fastapi.security import OAuth2PasswordRequestForm
 from auth import get_password_hash, verify_password, create_access_token, get_current_user
+from pdf_generator import generate_meeting_pdf
 
 # Create the tables in MariaDB
 models.Base.metadata.create_all(bind=engine)
@@ -289,6 +292,7 @@ async def get_dashboard_stats(db: Session = Depends(get_db), current_user: model
             "iconBgClass": "bg-secondary-container",
             "iconColorClass": "text-on-secondary-container",
             "title": t.filename,
+            "summary": t.summary,
             "date": t.upload_date.isoformat() + "Z" if t.upload_date else None,
             "transcripts": 1,
             "actions": actions_count,
@@ -337,6 +341,25 @@ async def get_transcript_details(transcript_id: int, db: Session = Depends(get_d
         "segments": [{"id": s.id, "segment_index": s.segment_index, "topic": s.topic, "vibe": s.vibe} for s in segments],
         "speakers": [{"id": sp.id, "speaker": sp.speaker, "overall_vibe": sp.overall_vibe, "alignment": sp.alignment} for sp in speakers]
     }
+
+@app.get("/transcripts/{transcript_id}/pdf")
+async def export_transcript_pdf(transcript_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # 1. Fetch details using the existing function (this handles auth and data gathering)
+    data = await get_transcript_details(transcript_id, db, current_user)
+    
+    # 2. Generate PDF
+    pdf_buffer = generate_meeting_pdf(data)
+    
+    # 3. Create a safe filename
+    filename = data.get("filename", f"meeting_{transcript_id}")
+    # Replace unsafe characters for headers
+    safe_filename = "".join([c for c in filename if c.isalpha() or c.isdigit() or c in (' ', '-', '_')]).rstrip()
+    
+    return StreamingResponse(
+        pdf_buffer, 
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=\"{safe_filename}.pdf\""}
+    )
 
 @app.delete("/transcripts/{transcript_id}")
 async def delete_transcript(

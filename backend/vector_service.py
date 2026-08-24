@@ -31,16 +31,26 @@ class DirectGeminiEmbeddingFunction(EmbeddingFunction):
 
     def __call__(self, input: Documents) -> Embeddings:
         embeddings = []
-        for text in input:
+        batch_size = 100
+        batch_url = self.url.replace(":embedContent", ":batchEmbedContents")
+        
+        for i in range(0, len(input), batch_size):
+            batch = input[i:i + batch_size]
             payload = {
-                "model": "models/gemini-embedding-001",   
-                "content": {"parts": [{"text": text}]}
+                "requests": [
+                    {
+                        "model": "models/gemini-embedding-001",
+                        "content": {"parts": [{"text": text}]}
+                    }
+                    for text in batch
+                ]
             }
-            res = requests.post(self.url, json=payload)
+            res = requests.post(batch_url, json=payload)
             res.raise_for_status()
             
-            # The response structure is {"embedding": {"values": [...]}}
-            embeddings.append(res.json().get("embedding", {}).get("values", []))
+            # The response structure is {"embeddings": [{"values": [...]}, ...]}
+            for item in res.json().get("embeddings", []):
+                embeddings.append(item.get("values", []))
             
         return embeddings
 

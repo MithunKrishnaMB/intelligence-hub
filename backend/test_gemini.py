@@ -1,0 +1,1 @@
+﻿import os, requests; from dotenv import load_dotenv; load_dotenv(); key = os.getenv('GEMINI_API_KEY'); url = f'https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={key}'; res = requests.post(url, json={'model': 'models/text-embedding-004', 'content': {'parts': [{'text': 'hello'}]}}); print(res.json())

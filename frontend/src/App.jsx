@@ -1,87 +1,38 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import Meetings from './pages/Meetings';
 import MeetingDetail from './pages/MeetingDetail';
 import Login from './pages/Login';
-import Register from './pages/Register';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-/**
- * PROTECTED ROUTE: 
- * If there is NO token, kick them back to the Login page.
- * If there IS a token, allow them to view the requested component (children).
- */
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
+const PrivateRoute = ({ children }) => {
+    const { user, isLoading } = useAuth();
+    if (isLoading) {
+        return children;
+    }
+    return user ? children : <Navigate to="/login" replace />;
 };
 
-/**
- * PUBLIC ROUTE:
- * If a user is ALREADY logged in, they shouldn't see the Login/Register pages.
- * Redirect them straight to the Dashboard instead.
- */
 const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  
-  if (token) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
+    const { user, isLoading } = useAuth();
+    if (isLoading) {
+        return children;
+    }
+    return !user ? children : <Navigate to="/" replace />;
 };
 
 function App() {
   return (
-    <Router>
+    <AuthProvider>
       <Routes>
-        
-        {/* === PUBLIC ROUTES === */}
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/register" 
-          element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          } 
-        />
-
-        {/* === SECURE ROUTES === */}
-        {/* By wrapping Dashboard in ProtectedRoute, the root URL '/' acts as a bouncer */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/meeting/:id" 
-          element={
-            <ProtectedRoute>
-              <MeetingDetail />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* Fallback: Catch any weird URLs and send them back to the start */}
+        <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/meetings" element={<PrivateRoute><Meetings /></PrivateRoute>} />
+        <Route path="/meeting/:id" element={<PrivateRoute><MeetingDetail /></PrivateRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        
       </Routes>
-    </Router>
+    </AuthProvider>
   );
 }
 
