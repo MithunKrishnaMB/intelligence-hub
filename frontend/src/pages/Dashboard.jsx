@@ -162,14 +162,14 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start h-full">
                     <div className="lg:col-span-5 flex flex-col gap-xl">
                         <section>
-                            <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-sm font-headline-lg">Your Meetings</h1>
+                            <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-xs">Your Meetings</h1>
                             <p className="font-body-lg text-body-lg text-secondary">Upload transcripts or review recent AI-distilled insights to maintain actionable clarity.</p>
                         </section>
-                        <div className="bg-surface-container-lowest rounded-xl p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-outline-variant/10">
+                        <div className="bg-surface-container-lowest rounded-xl p-lg md:p-xl soft-shadow border border-outline-variant/10">
                             <h2 className="font-headline-sm text-headline-sm text-on-surface mb-md">Upload Transcripts</h2>
                             
                             <div 
-                                className={`border border-dashed rounded-xl p-xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors min-h-[200px] mb-lg relative ${isDragging ? 'border-primary bg-primary/5' : 'border-outline-variant/50 hover:border-primary bg-surface-container-low'}`}
+                                className={`border border-dashed rounded-xl p-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 min-h-[180px] mb-lg relative ${isDragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-outline-variant/30 hover:border-outline hover:bg-surface-container-low'}`}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
@@ -183,25 +183,25 @@ export default function Dashboard() {
                                     onChange={handleFileInputChange}
                                     disabled={isProcessing}
                                 />
-                                <span className="material-symbols-outlined text-secondary mb-sm" style={{ fontSize: "32px" }}>cloud_upload</span>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">Drag & Drop files here</p>
-                                <p className="font-body-sm text-body-sm text-secondary mt-xs text-xs">Supports .txt and .vtt only</p>
+                                <span className="material-symbols-outlined text-outline mb-sm" style={{ fontSize: "28px" }}>cloud_upload</span>
+                                <p className="font-body-sm text-body-sm text-on-surface-variant">Drag & Drop files here</p>
+                                <p className="font-body-sm text-body-sm text-outline mt-xs text-[12px]">Supports .txt and .vtt only</p>
                             </div>
 
-                            <ul className={`flex flex-col gap-sm mb-lg max-h-[150px] overflow-y-auto pr-sm ${queuedFiles.length === 0 ? 'hidden' : ''}`}>
+                            <ul className={`flex flex-col gap-xs mb-lg max-h-[150px] overflow-y-auto pr-sm ${queuedFiles.length === 0 ? 'hidden' : ''}`}>
                                 {queuedFiles.map((file, index) => (
-                                    <li key={index} className="flex items-center justify-between bg-surface p-sm rounded-lg border border-outline-variant/10 text-body-sm font-body-sm group hover:bg-surface-container-high transition-colors">
+                                    <li key={index} className="flex items-center justify-between bg-surface-container-low p-sm px-md rounded-lg border border-outline-variant/10 text-body-sm font-body-sm group hover:bg-surface-container-high transition-colors">
                                         <div className="flex items-center gap-sm overflow-hidden">
-                                            <span className="material-symbols-outlined text-secondary" style={{ fontSize: "18px" }}>description</span>
+                                            <span className="material-symbols-outlined text-secondary" style={{ fontSize: "16px" }}>description</span>
                                             <span className="text-on-surface truncate max-w-[150px]" title={file.name}>{file.name}</span>
-                                            <span className="text-secondary text-[10px] ml-1">({(file.size / 1024).toFixed(1)}kb)</span>
+                                            <span className="text-outline text-[10px] ml-1">({(file.size / 1024).toFixed(1)}kb)</span>
                                         </div>
                                         <button 
-                                            className="text-secondary hover:text-error transition-colors p-1 rounded-full hover:bg-error-container opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" 
+                                            className="text-outline hover:text-error transition-colors p-1 rounded-full hover:bg-error-container opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" 
                                             onClick={() => removeFile(index)}
                                             disabled={isProcessing}
                                         >
-                                            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>close</span>
+                                            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>close</span>
                                         </button>
                                     </li>
                                 ))}
@@ -209,12 +209,12 @@ export default function Dashboard() {
 
                             <div className="flex flex-col gap-md">
                                 <button 
-                                    className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-md px-lg rounded-xl font-body-sm text-body-sm shadow-[0_4px_14px_0_rgba(0,91,196,0.39)] hover:shadow-[0_6px_20px_rgba(0,91,196,0.23)] hover:-translate-y-[1px] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none flex justify-center items-center gap-sm" 
+                                    className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-md px-lg rounded-xl font-body-sm text-body-sm font-semibold shadow-[0_4px_14px_rgba(0,68,150,0.25)] hover:shadow-[0_6px_20px_rgba(0,68,150,0.35)] hover:-translate-y-[1px] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none flex justify-center items-center gap-sm" 
                                     disabled={queuedFiles.length === 0 || isProcessing}
                                     onClick={processTranscripts}
                                 >
                                     Process Transcripts
-                                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                                 </button>
 
                                 <div className={`flex-col gap-xs mt-sm ${isProcessing ? 'flex' : 'hidden'}`}>
@@ -222,16 +222,16 @@ export default function Dashboard() {
                                         <span className="font-label-caps text-label-caps text-secondary uppercase tracking-wider">{progressText}</span>
                                         <span className="font-label-caps text-label-caps text-primary">{progressPercent}%</span>
                                     </div>
-                                    <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary transition-all duration-300 ease-out rounded-full" style={{ width: `${progressPercent}%` }}></div>
+                                    <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                                        <div className="h-full bg-primary transition-all duration-500 ease-out rounded-full" style={{ width: `${progressPercent}%` }}></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="lg:col-span-7 flex flex-col gap-lg">
-                        <div className="flex items-center justify-between mb-md">
+                    <div className="lg:col-span-7 flex flex-col gap-md">
+                        <div className="flex items-center justify-between mb-xs">
                             <h2 className="font-headline-sm text-headline-sm text-on-surface">Recent Activity</h2>
                         </div>
 
@@ -239,15 +239,15 @@ export default function Dashboard() {
                             {isLoadingMeetings ? (
                                 <>
                                     {[0, 1, 2].map((i) => (
-                                        <div key={i} className="pulse-skeleton bg-surface-container-lowest rounded-xl p-lg shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-outline-variant/10 flex flex-col gap-md" style={{ animationDelay: `${i * 0.1}s` }}>
+                                        <div key={i} className="pulse-skeleton bg-surface-container-lowest rounded-xl p-lg soft-shadow border border-outline-variant/10 flex flex-col gap-md" style={{ animationDelay: `${i * 0.15}s` }}>
                                             <div className="flex justify-between items-start">
-                                                <div className={`h-6 bg-surface-container-high rounded ${i === 0 ? 'w-3/4' : i === 1 ? 'w-2/3' : 'w-4/5'}`}></div>
-                                                <div className="h-4 bg-surface-container-high rounded w-16"></div>
+                                                <div className={`h-5 bg-surface-container-high rounded-md ${i === 0 ? 'w-3/4' : i === 1 ? 'w-2/3' : 'w-4/5'}`}></div>
+                                                <div className="h-4 bg-surface-container-high rounded-md w-16"></div>
                                             </div>
-                                            <div className="flex gap-md mt-sm">
-                                                <div className="h-8 bg-surface-container-highest rounded w-20"></div>
-                                                <div className="h-8 bg-surface-container-highest rounded w-24"></div>
-                                                {i !== 1 && <div className="h-8 bg-surface-container-highest rounded w-20"></div>}
+                                            <div className="flex gap-sm mt-xs">
+                                                <div className="h-7 bg-surface-container rounded-md w-20"></div>
+                                                <div className="h-7 bg-surface-container rounded-md w-24"></div>
+                                                {i !== 1 && <div className="h-7 bg-surface-container rounded-md w-20"></div>}
                                             </div>
                                         </div>
                                     ))}
@@ -259,13 +259,13 @@ export default function Dashboard() {
                                     const score = meeting.sentiment || 0;
                                     
                                     if (score <= 50) {
-                                        sentimentColor = "text-red-700";
+                                        sentimentColor = "text-[#EF4444]";
                                         sentimentIcon = "trending_down";
                                     } else if (score <= 70) {
                                         sentimentColor = "text-yellow-600";
                                         sentimentIcon = "horizontal_rule";
                                     } else {
-                                        sentimentColor = "text-[#107050]";
+                                        sentimentColor = "text-[#10B981]";
                                         sentimentIcon = "trending_up";
                                     }
                                     
@@ -274,28 +274,28 @@ export default function Dashboard() {
                                         : "Unknown Date";
 
                                     return (
-                                        <Link to={`/meeting/${meeting.id}`} key={meeting.id} className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-outline-variant/10 hover:-translate-y-[2px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col gap-md group cursor-pointer block">
+                                        <Link to={`/meeting/${meeting.id}`} key={meeting.id} className="bg-surface-container-lowest rounded-xl p-lg soft-shadow border border-outline-variant/10 card-hover flex flex-col gap-md group cursor-pointer block">
                                             <div className="flex justify-between items-start gap-md">
                                                 <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-2">{meeting.title}</h3>
-                                                <span className="font-label-caps text-label-caps text-secondary whitespace-nowrap bg-surface-container-high px-2 py-1 rounded">{formattedDate}</span>
+                                                <span className="font-label-caps text-label-caps text-secondary whitespace-nowrap bg-surface-container px-sm py-xs rounded-md">{formattedDate}</span>
                                             </div>
                                             
-                                            <div className="flex flex-wrap gap-sm mt-auto pt-sm border-t border-outline-variant/10">
-                                                <div className="flex items-center gap-xs px-2 py-1 bg-surface rounded-md border border-outline-variant/20">
-                                                    <span className="material-symbols-outlined text-[16px] text-secondary">description</span>
+                                            <div className="flex flex-wrap gap-sm mt-auto pt-sm border-t border-outline-variant/8">
+                                                <div className="flex items-center gap-xs px-sm py-xs bg-surface-container-low rounded-md">
+                                                    <span className="material-symbols-outlined text-[14px] text-secondary">description</span>
                                                     <span className="font-body-sm text-body-sm text-on-surface-variant">{meeting.transcripts}</span>
                                                 </div>
-                                                <div className="flex items-center gap-xs px-2 py-1 bg-surface rounded-md border border-outline-variant/20">
-                                                    <span className="material-symbols-outlined text-[16px] text-tertiary-container">task_alt</span>
+                                                <div className="flex items-center gap-xs px-sm py-xs bg-surface-container-low rounded-md">
+                                                    <span className="material-symbols-outlined text-[14px] text-tertiary-container">task_alt</span>
                                                     <span className="font-body-sm text-body-sm text-on-surface-variant">{meeting.actions} Actions</span>
                                                 </div>
-                                                <div className="flex items-center gap-xs px-2 py-1 bg-surface rounded-md border border-outline-variant/20">
-                                                    <span className="material-symbols-outlined text-[16px] text-primary">lightbulb</span>
+                                                <div className="flex items-center gap-xs px-sm py-xs bg-surface-container-low rounded-md">
+                                                    <span className="material-symbols-outlined text-[14px] text-primary">lightbulb</span>
                                                     <span className="font-body-sm text-body-sm text-on-surface-variant">{meeting.decisions} Decisions</span>
                                                 </div>
                                                 <div className={`flex items-center gap-xs ml-auto font-bold tracking-tight ${sentimentColor}`}>
-                                                    <span className="text-title-md">{score}%</span>
-                                                    <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 700" }}>{sentimentIcon}</span>
+                                                    <span className="text-body-base font-bold">{score}%</span>
+                                                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'wght' 600" }}>{sentimentIcon}</span>
                                                 </div>
                                             </div>
                                         </Link>
@@ -304,16 +304,16 @@ export default function Dashboard() {
                             )}
                             
                             {!isLoadingMeetings && meetings.length === 0 && (
-                                <div className="bg-surface-container-lowest rounded-xl p-xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-outline-variant/10 text-center flex flex-col items-center justify-center min-h-[200px]">
-                                    <span className="material-symbols-outlined text-secondary mb-md" style={{ fontSize: "40px" }}>inbox</span>
-                                    <h3 className="font-headline-sm text-headline-sm text-on-surface mb-xs font-bold">No transcripts uploaded.</h3>
-                                    <p className="font-body-sm text-body-sm text-on-surface-variant max-w-[250px]">Your processed meeting insights will appear here once you upload a file.</p>
+                                <div className="bg-surface-container-lowest rounded-xl p-2xl soft-shadow border border-outline-variant/10 text-center flex flex-col items-center justify-center min-h-[240px]">
+                                    <span className="material-symbols-outlined text-outline mb-lg" style={{ fontSize: "48px" }}>inbox</span>
+                                    <h3 className="font-headline-sm text-headline-sm text-on-surface mb-xs">No transcripts uploaded.</h3>
+                                    <p className="font-body-sm text-body-sm text-on-surface-variant max-w-[280px]">Your processed meeting insights will appear here once you upload a file.</p>
                                 </div>
                             )}
                             
                             {!isLoadingMeetings && meetings.length > 0 && (
-                                <div className="mt-sm flex justify-center">
-                                    <Link to="/meetings" className="font-body-sm text-body-sm text-primary hover:underline underline-offset-4 decoration-primary/30 font-medium transition-colors hover:text-primary-container">
+                                <div className="mt-xs flex justify-center">
+                                    <Link to="/meetings" className="font-body-sm text-body-sm text-primary hover:underline underline-offset-4 decoration-primary/30 font-medium transition-colors">
                                         Show all
                                     </Link>
                                 </div>

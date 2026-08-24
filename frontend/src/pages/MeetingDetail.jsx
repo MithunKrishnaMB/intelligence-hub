@@ -174,29 +174,29 @@ export default function MeetingDetail() {
     if (isLoading) {
         return (
             <Layout>
-                <main className="flex-grow py-xl px-margin-mobile md:px-margin-desktop w-full animate-pulse">
-                    <div className="mb-3xl">
+                <main className="flex-grow py-xl px-margin-mobile md:px-margin-desktop w-full">
+                    <div className="mb-3xl animate-pulse">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg mb-lg">
                             <div className="w-full max-w-3xl">
-                                <div className="h-4 bg-outline-variant/20 rounded w-64 mb-sm"></div>
-                                <div className="h-10 bg-outline-variant/20 rounded w-3/4 mb-md"></div>
-                                <div className="h-4 bg-outline-variant/20 rounded w-full mb-2"></div>
-                                <div className="h-4 bg-outline-variant/20 rounded w-5/6"></div>
+                                <div className="h-4 bg-surface-container-high rounded-md w-48 mb-sm"></div>
+                                <div className="h-8 bg-surface-container-high rounded-md w-3/4 mb-md"></div>
+                                <div className="h-4 bg-surface-container rounded-md w-full mb-2"></div>
+                                <div className="h-4 bg-surface-container rounded-md w-5/6"></div>
                             </div>
-                            <div className="flex gap-md shrink-0">
-                                <div className="h-10 w-24 bg-outline-variant/20 rounded-lg"></div>
-                                <div className="h-10 w-32 bg-outline-variant/20 rounded-lg"></div>
+                            <div className="flex gap-sm shrink-0">
+                                <div className="h-9 w-20 bg-surface-container-high rounded-xl"></div>
+                                <div className="h-9 w-28 bg-surface-container-high rounded-xl"></div>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-                        <div className="lg:col-span-8 bg-surface-container-lowest rounded-[24px] p-lg md:p-xl border border-outline-variant/10 h-72 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter animate-pulse">
+                        <div className="lg:col-span-8 bg-surface-container-lowest rounded-[24px] p-xl border border-outline-variant/10 h-72 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin"></div>
                         </div>
                         <div className="lg:col-span-4 bg-surface-container-lowest rounded-[24px] p-lg border border-outline-variant/10 h-72"></div>
-                        <div className="lg:col-span-12 mt-lg bg-surface-container-lowest rounded-[24px] p-lg md:p-xl border border-outline-variant/10 h-48"></div>
-                        <div className="lg:col-span-12 mt-lg h-64 bg-surface-container-lowest rounded-[24px] p-lg border border-outline-variant/10"></div>
+                        <div className="lg:col-span-12 mt-md bg-surface-container-lowest rounded-[24px] p-xl border border-outline-variant/10 h-48"></div>
+                        <div className="lg:col-span-12 mt-md h-56 bg-surface-container-lowest rounded-[24px] p-lg border border-outline-variant/10"></div>
                     </div>
                 </main>
             </Layout>
@@ -207,8 +207,9 @@ export default function MeetingDetail() {
         return (
             <Layout>
                 <main className="flex-grow py-xl px-margin-mobile md:px-margin-desktop w-full text-center flex flex-col items-center justify-center min-h-[400px]">
-                    <h2 className="font-headline-md text-on-surface mb-md">Meeting not found</h2>
-                    <Link to="/" className="text-primary hover:underline">Return to Dashboard</Link>
+                    <span className="material-symbols-outlined text-outline mb-md" style={{ fontSize: "48px" }}>search_off</span>
+                    <h2 className="font-headline-md text-on-surface mb-sm">Meeting not found</h2>
+                    <Link to="/" className="text-primary font-body-sm font-semibold hover:underline underline-offset-4 decoration-primary/30">Return to Dashboard</Link>
                 </main>
             </Layout>
         );
@@ -222,31 +223,31 @@ export default function MeetingDetail() {
                 <div className="mb-3xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg mb-lg">
                         <div className="max-w-3xl">
-                            <div className="flex flex-wrap items-center gap-md mb-sm text-secondary font-body-sm">
-                                <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[16px]">calendar_today</span> {formattedDate}</span>
+                            <h1 className="font-headline-lg text-headline-lg text-on-surface font-extrabold mb-md">{meeting.filename}</h1>
+                            <div className="flex flex-wrap items-center gap-md mb-md text-secondary font-body-sm">
+                                <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[14px]">calendar_today</span> {formattedDate}</span>
                                 <span className="w-1 h-1 rounded-full bg-outline-variant"></span>
                                 {meeting.duration && (
                                     <>
-                                        <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[16px]">schedule</span> {meeting.duration}</span>
+                                        <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[14px]">schedule</span> {meeting.duration}</span>
                                         <span className="w-1 h-1 rounded-full bg-outline-variant"></span>
                                     </>
                                 )}
-                                <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[16px]">description</span> {meeting.word_count || 0} words</span>
+                                <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[14px]">description</span> {meeting.word_count || 0} words</span>
                             </div>
-                            <h1 className="font-headline-lg-mobile md:font-headline-lg text-on-surface mb-md">{meeting.filename}</h1>
-                            <p className="font-body-lg text-on-surface-variant">
+                            <p className="font-body-lg text-on-surface-variant" style={{ fontWeight: 300 }}>
                                 {meeting.summary || "No summary available."}
                             </p>
                         </div>
-                        <div className="flex items-center gap-md shrink-0">
-                            <button onClick={() => setIsDeleteModalOpen(true)} className="px-md py-sm rounded-lg border border-outline-variant/30 text-secondary font-body-sm flex items-center gap-sm hover:bg-error/5 hover:text-error hover:border-error/30 transition-all">
-                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                        <div className="flex items-center gap-sm shrink-0">
+                            <button onClick={() => setIsDeleteModalOpen(true)} className="px-md py-sm rounded-xl border border-outline-variant/20 text-secondary font-body-sm flex items-center gap-sm hover:bg-error/5 hover:text-error hover:border-error/20 transition-all duration-300">
+                                <span className="material-symbols-outlined text-[16px]">delete</span>
                                 Delete
                             </button>
                             <button 
                                 onClick={handleExportPdf}
                                 disabled={isExporting}
-                                className="px-lg py-sm rounded-lg bg-gradient-to-r from-primary to-[#0066FF] text-on-primary font-body-sm font-semibold flex items-center gap-sm shadow-[0_4px_14px_rgba(0,68,150,0.3)] hover:shadow-[0_6px_20px_rgba(0,68,150,0.4)] transition-all disabled:opacity-70 disabled:cursor-wait"
+                                className="px-lg py-sm rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-body-sm font-semibold flex items-center gap-sm shadow-[0_4px_14px_rgba(0,68,150,0.25)] hover:shadow-[0_6px_20px_rgba(0,68,150,0.35)] hover:-translate-y-[1px] transition-all duration-300 disabled:opacity-70 disabled:cursor-wait disabled:hover:translate-y-0"
                             >
                                 {isExporting ? (
                                     <>
@@ -255,7 +256,7 @@ export default function MeetingDetail() {
                                     </>
                                 ) : (
                                     <>
-                                        <span className="material-symbols-outlined text-[18px]">download</span>
+                                        <span className="material-symbols-outlined text-[16px]">download</span>
                                         Export PDF
                                     </>
                                 )}
@@ -265,23 +266,23 @@ export default function MeetingDetail() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-                    <div className="lg:col-span-8 bg-surface-container-lowest rounded-[24px] p-lg md:p-xl soft-shadow card-hover transition-all duration-300 border border-outline-variant/10">
+                    <div className="lg:col-span-8 bg-surface-container-lowest rounded-[24px] p-lg md:p-xl soft-shadow card-hover border border-outline-variant/10">
                         <div className="flex justify-between items-center mb-xl">
                             <h2 className="font-headline-md text-on-surface">Sentiment Overview</h2>
                             <div className="px-md py-xs rounded-full bg-surface-container flex items-center gap-sm">
-                                <span className={`w-2 h-2 rounded-full ${meeting.overall_sentiment_score >= 70 ? 'bg-[#10B981]' : meeting.overall_sentiment_score >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}></span>
+                                <span className={`w-2 h-2 rounded-full ${meeting.overall_sentiment_score >= 70 ? 'bg-[#10B981]' : meeting.overall_sentiment_score >= 40 ? 'bg-yellow-500' : 'bg-[#EF4444]'}`}></span>
                                 <span className="font-label-caps text-secondary uppercase">OVERALL SCORE ({meeting.overall_sentiment_score || 0}%)</span>
                             </div>
                         </div>
 
                         <div className="h-48 flex items-end justify-between gap-1 mb-md relative">
-                            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-secondary font-label-caps text-[10px] opacity-50 -ml-2">
+                            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-secondary font-label-caps text-[10px] opacity-40 -ml-2">
                                 <span>+1.0</span>
                                 <span>0.0</span>
                                 <span>-1.0</span>
                             </div>
 
-                            <div className="absolute left-6 right-0 top-1/2 h-px bg-outline-variant/20 -translate-y-1/2"></div>
+                            <div className="absolute left-6 right-0 top-1/2 h-px bg-outline-variant/15 -translate-y-1/2"></div>
 
                             <div className="ml-6 w-full flex items-end justify-between gap-[2px] h-full pt-4">
                                 {/* Use real segments if they exist, otherwise placeholder for visual */}
@@ -296,7 +297,7 @@ export default function MeetingDetail() {
                                         const variation = (idx % 3) * 10 - 10; 
                                         const h = `${baseHeight + variation}%`;
                                         
-                                        const bg = isPositive ? 'bg-[#10B981]/60' : isNegative ? 'bg-[#EF4444]/60' : 'bg-surface-variant';
+                                        const bg = isPositive ? 'bg-[#10B981]/50' : isNegative ? 'bg-[#EF4444]/50' : 'bg-surface-variant';
                                         const transform = isNegative ? 'translate-y-full rounded-b-sm' : 'rounded-t-sm';
                                         
                                         return (
@@ -309,11 +310,11 @@ export default function MeetingDetail() {
                                         );
                                     })
                                 ) : (
-                                    <div className="w-full text-center text-secondary self-center">No segment data</div>
+                                    <div className="w-full text-center text-secondary self-center font-body-sm">No segment data</div>
                                 )}
                             </div>
                         </div>
-                        <div className="flex justify-between text-secondary font-label-caps opacity-60 ml-6">
+                        <div className="flex justify-between text-secondary font-label-caps opacity-50 ml-6">
                             <span>Start</span>
                             <span>Mid</span>
                             <span>End</span>
@@ -335,14 +336,14 @@ export default function MeetingDetail() {
                                 }
                                 return (
                                     <>
-                                        <h3 className="font-label-caps text-secondary mb-md tracking-widest uppercase">OVERALL SENTIMENT SCORE</h3>
+                                        <h3 className="font-label-caps text-secondary mb-lg tracking-widest uppercase">OVERALL SENTIMENT SCORE</h3>
                                         <div className={`flex items-center justify-center gap-sm ${color} mb-md`}>
-                                            <div className="text-[72px] leading-none font-bold tracking-tighter flex items-baseline">
-                                                {score}<span className="text-[32px] ml-1 font-medium">%</span>
+                                            <div className="text-[64px] leading-none font-bold tracking-tighter flex items-baseline">
+                                                {score}<span className="text-[28px] ml-1 font-medium">%</span>
                                             </div>
-                                            <span className="material-symbols-outlined text-[48px]" style={{ fontVariationSettings: "'wght' 600" }}>{icon}</span>
+                                            <span className="material-symbols-outlined text-[40px]" style={{ fontVariationSettings: "'wght' 600" }}>{icon}</span>
                                         </div>
-                                        <p className="font-body-sm text-on-surface-variant max-w-[280px] leading-relaxed italic">
+                                        <p className="font-body-sm text-on-surface-variant max-w-[260px] leading-relaxed italic" style={{ fontWeight: 300 }}>
                                             "{meeting.sentiment_comment || 'General discussion.'}"
                                         </p>
                                     </>
@@ -351,74 +352,74 @@ export default function MeetingDetail() {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-12 mt-lg bg-surface-container-lowest rounded-[24px] p-lg md:p-xl soft-shadow border border-outline-variant/10">
+                    <div className="lg:col-span-12 mt-md bg-surface-container-lowest rounded-[24px] p-lg md:p-xl soft-shadow border border-outline-variant/10">
                         <h2 className="font-headline-md text-on-surface mb-xl">Decisions Made</h2>
-                        <div className="flex flex-col gap-md">
+                        <div className="flex flex-col gap-sm">
                             {meeting.decisions && meeting.decisions.length > 0 ? (
                                 meeting.decisions.map((decision, idx) => (
                                     <React.Fragment key={decision.id}>
-                                        <div className="flex items-start gap-md p-md rounded-xl hover:bg-surface-container-low transition-colors group">
-                                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
-                                                <span className="material-symbols-outlined text-[20px]">gavel</span>
+                                        <div className="flex items-start gap-md p-md rounded-xl hover:bg-surface-container-low transition-colors duration-200 group">
+                                            <div className="w-9 h-9 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-200">
+                                                <span className="material-symbols-outlined text-[18px]">gavel</span>
                                             </div>
                                             <div>
-                                                <h4 className="font-headline-sm text-on-surface mb-xs">Decision #{idx + 1}</h4>
+                                                <h4 className="font-headline-sm text-on-surface mb-xs text-[16px]">Decision #{idx + 1}</h4>
                                                 <p className="font-body-sm text-on-surface-variant">{decision.content}</p>
                                             </div>
                                         </div>
-                                        {idx < meeting.decisions.length - 1 && <div className="w-full h-px bg-outline-variant/10"></div>}
+                                        {idx < meeting.decisions.length - 1 && <div className="w-full h-px bg-outline-variant/8"></div>}
                                     </React.Fragment>
                                 ))
                             ) : (
-                                <div className="text-secondary p-md">No decisions extracted.</div>
+                                <div className="text-secondary p-md font-body-sm">No decisions extracted.</div>
                             )}
                         </div>
                     </div>
 
-                    <div className="lg:col-span-12 mt-lg">
-                        <h2 className="font-headline-md text-on-surface mb-lg px-2">Action Items</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+                    <div className="lg:col-span-12 mt-md">
+                        <h2 className="font-headline-md text-on-surface mb-lg">Action Items</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
                             {meeting.action_items && meeting.action_items.length > 0 ? (
                                 meeting.action_items.map((action) => (
-                                    <div key={action.id} className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/20 hover:border-primary/30 soft-shadow transition-all group flex flex-col h-full">
+                                    <div key={action.id} className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/10 hover:border-primary/20 soft-shadow card-hover flex flex-col h-full group">
                                         <div className="flex justify-between items-start mb-md">
-                                            <span className="px-sm py-xs rounded bg-surface-container text-secondary font-label-caps uppercase">Action Item</span>
-                                            <button className="text-secondary opacity-0 group-hover:opacity-100 transition-opacity"><span className="material-symbols-outlined text-[18px]">more_horiz</span></button>
+                                            <span className="px-sm py-xs rounded-md bg-surface-container text-secondary font-label-caps uppercase text-[10px]">Action Item</span>
+                                            <button className="text-secondary opacity-0 group-hover:opacity-100 transition-opacity"><span className="material-symbols-outlined text-[16px]">more_horiz</span></button>
                                         </div>
                                         <p className="font-body-base text-on-surface mb-xl flex-grow">{action.task}</p>
-                                        <div className="flex items-center gap-sm mt-auto">
-                                            <div className="w-6 h-6 rounded-full bg-secondary text-white flex items-center justify-center font-label-caps text-[10px]">{getInitials(action.owner)}</div>
-                                            <span className="font-body-sm text-secondary">{action.owner || 'Unknown'}</span>
+                                        <div className="flex items-center gap-sm mt-auto pt-sm border-t border-outline-variant/8">
+                                            <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-label-caps text-[9px]">{getInitials(action.owner)}</div>
+                                            <span className="font-body-sm text-secondary text-[12px]">{action.owner || 'Unknown'}</span>
                                             {action.due_date && action.due_date !== 'Not specified' && (
-                                                <span className="font-body-sm text-secondary ml-auto">{action.due_date}</span>
+                                                <span className="font-body-sm text-secondary text-[12px] ml-auto">{action.due_date}</span>
                                             )}
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-secondary col-span-full px-2">No action items extracted.</div>
+                                <div className="text-secondary col-span-full font-body-sm">No action items extracted.</div>
                             )}
                         </div>
                     </div>
                 </div>
             </main>
 
-            <div className="fixed bottom-24 right-lg md:bottom-32 md:right-2xl z-50 flex flex-col items-end">
+            <div className="fixed bottom-20 right-lg md:bottom-24 md:right-2xl z-50 flex flex-col items-end">
                 <div
-                    className={`mb-md w-[350px] md:w-[400px] h-[500px] glass-panel rounded-2xl border border-outline-variant/20 shadow-[0_20px_60px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden origin-bottom-right transition-all duration-300 ${isChatOpen ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-10 opacity-0 pointer-events-none hidden'}`}
+                    className={`mb-md w-[340px] md:w-[380px] h-[480px] glass-panel rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden origin-bottom-right transition-all duration-300 ${isChatOpen ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-10 opacity-0 pointer-events-none hidden'}`}
                     id="ai-chat-modal"
                     style={{ display: isChatOpen ? 'flex' : 'none' }}
                 >
-                    <div className="p-md bg-surface/50 border-b border-outline-variant/10 flex justify-between items-center shrink-0">
+                    <div className="p-md bg-surface-container-lowest/80 backdrop-blur-xl border-b border-outline-variant/8 flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-sm">
-                            <span className="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
-                            <span className="font-headline-sm text-on-surface">Serene AI</span>
+                            <span className="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+                            <span className="font-headline-sm text-on-surface text-[16px]">Serene AI</span>
                         </div>
                         <button
-                            className="text-secondary hover:text-on-surface transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container"
+                            className="text-secondary hover:text-on-surface transition-colors w-7 h-7 flex items-center justify-center rounded-full hover:bg-surface-container-high"
                             onClick={toggleChat}
                         >
-                            <span className="material-symbols-outlined text-[18px]">close</span>
+                            <span className="material-symbols-outlined text-[16px]">close</span>
                         </button>
                     </div>
 
@@ -426,11 +427,11 @@ export default function MeetingDetail() {
                         {chatMessages.map((msg, index) => (
                             <div key={index} className={`flex gap-sm ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                                 {msg.role === 'ai' && (
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
-                                        <span className="material-symbols-outlined text-primary text-[16px]">auto_awesome</span>
+                                    <div className="w-7 h-7 rounded-full bg-primary/8 flex items-center justify-center shrink-0 mt-1">
+                                        <span className="material-symbols-outlined text-primary text-[14px]">auto_awesome</span>
                                     </div>
                                 )}
-                                <div className={`${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-none' : 'bg-surface-container-low text-on-surface rounded-tl-none'} rounded-2xl p-sm px-md text-body-sm shadow-sm msg-enter`}>
+                                <div className={`${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-none' : 'bg-surface-container-low text-on-surface rounded-tl-none'} rounded-2xl p-sm px-md text-body-sm shadow-sm msg-enter max-w-[85%]`}>
                                     {msg.role === 'ai' ? (
                                         <div className="markdown-content">
                                             <ReactMarkdown>
@@ -445,22 +446,22 @@ export default function MeetingDetail() {
                         ))}
                         {isSendingChat && (
                             <div className="flex gap-sm">
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
-                                    <span className="material-symbols-outlined text-primary text-[16px]">auto_awesome</span>
+                                <div className="w-7 h-7 rounded-full bg-primary/8 flex items-center justify-center shrink-0 mt-1">
+                                    <span className="material-symbols-outlined text-primary text-[14px]">auto_awesome</span>
                                 </div>
-                                <div className="bg-surface-container-low rounded-2xl rounded-tl-none p-sm px-md text-body-sm text-on-surface msg-enter flex gap-1 items-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce"></span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce" style={{animationDelay: '0.15s'}}></span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce" style={{animationDelay: '0.3s'}}></span>
+                                <div className="bg-surface-container-low rounded-2xl rounded-tl-none p-sm px-md text-body-sm text-on-surface msg-enter flex gap-1.5 items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-outline animate-bounce"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-outline animate-bounce" style={{animationDelay: '0.15s'}}></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-outline animate-bounce" style={{animationDelay: '0.3s'}}></span>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <form className="p-sm bg-surface border-t border-outline-variant/10 shrink-0" onSubmit={handleSendMessage}>
+                    <form className="p-sm bg-surface-container-lowest border-t border-outline-variant/8 shrink-0" onSubmit={handleSendMessage}>
                         <div className="relative flex items-center">
                             <input 
-                                className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-sm pl-md pr-12 text-body-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all disabled:opacity-50" 
+                                className="w-full bg-surface-container-low rounded-xl py-sm pl-md pr-12 text-body-sm input-glow disabled:opacity-50" 
                                 placeholder="Ask Serene AI..." 
                                 type="text" 
                                 value={chatInput}
@@ -470,49 +471,49 @@ export default function MeetingDetail() {
                             <button 
                                 type="submit"
                                 disabled={!chatInput.trim() || isSendingChat}
-                                className="absolute right-1 w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white hover:bg-[#005BC4] transition-colors disabled:opacity-50 disabled:hover:bg-primary"
+                                className="absolute right-1.5 w-7 h-7 flex items-center justify-center rounded-lg bg-primary text-white hover:bg-primary-container transition-colors disabled:opacity-40 disabled:hover:bg-primary"
                             >
-                                <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
+                                <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
                             </button>
                         </div>
                     </form>
                 </div>
 
                 <button
-                    className="w-14 h-14 rounded-full bg-primary shadow-[0_12px_40px_rgba(0,0,0,0.2)] flex items-center justify-center text-white hover:scale-105 hover:shadow-[0_16px_50px_rgba(0,0,0,0.25)] transition-all duration-300 ambient-glow group"
+                    className="w-12 h-12 rounded-full bg-primary shadow-[0_8px_30px_rgba(0,68,150,0.25)] flex items-center justify-center text-white hover:scale-105 hover:shadow-[0_12px_40px_rgba(0,68,150,0.35)] transition-all duration-300 ambient-glow group"
                     id="chat-fab"
                     onClick={toggleChat}
                 >
-                    <span className={`material-symbols-outlined text-[24px] transition-transform duration-300 ${isChatOpen ? 'rotate-180' : 'group-hover:rotate-12'}`}>
+                    <span className={`material-symbols-outlined text-[22px] transition-transform duration-300 ${isChatOpen ? 'rotate-180' : 'group-hover:rotate-12'}`}>
                         {isChatOpen ? 'keyboard_arrow_down' : 'chat'}
                     </span>
                 </button>
             </div>
 
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-                    <div className="bg-surface-container-lowest rounded-2xl w-full max-w-md p-xl shadow-lg border border-outline-variant/20">
-                        <div className="flex items-center gap-md mb-md">
-                            <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
-                                <span className="material-symbols-outlined text-[24px]">warning</span>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+                    <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm p-xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-outline-variant/10 fade-in">
+                        <div className="flex items-center gap-md mb-lg">
+                            <div className="w-11 h-11 rounded-full bg-error/8 text-error flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-[22px]">warning</span>
                             </div>
                             <h2 className="font-headline-sm text-on-surface">Delete Meeting</h2>
                         </div>
                         <p className="font-body-base text-on-surface-variant mb-xl">
                             Are you sure you want to delete this meeting permanently? This action cannot be undone.
                         </p>
-                        <div className="flex justify-end gap-md">
+                        <div className="flex justify-end gap-sm">
                             <button 
                                 onClick={() => setIsDeleteModalOpen(false)}
                                 disabled={isDeleting}
-                                className="px-lg py-sm rounded-lg border border-outline-variant/30 text-secondary font-body-sm hover:bg-surface-container transition-colors disabled:opacity-50"
+                                className="px-lg py-sm rounded-xl border border-outline-variant/20 text-secondary font-body-sm hover:bg-surface-container-high transition-colors disabled:opacity-50"
                             >
                                 Cancel
                             </button>
                             <button 
                                 onClick={executeDelete}
                                 disabled={isDeleting}
-                                className="px-lg py-sm rounded-lg bg-error text-white font-body-sm font-semibold flex items-center gap-sm hover:bg-[#a01616] transition-colors shadow-sm disabled:opacity-50"
+                                className="px-lg py-sm rounded-xl bg-error text-white font-body-sm font-semibold flex items-center gap-sm hover:bg-[#a01616] transition-colors shadow-sm disabled:opacity-50"
                             >
                                 {isDeleting ? (
                                     <>
