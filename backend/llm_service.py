@@ -91,7 +91,7 @@ def extract_meeting_insights(transcript_text: str):
 
 def analyze_meeting_sentiment(transcript_text: str):
     system_prompt = """
-    You are an elite organizational psychologist and behavioral analyst. Your task is to analyze the tone, sentiment, and interpersonal dynamics of the provided meeting transcript.
+    You are an elite organizational psychologist and behavioral analyst. Your task is to analyze the tone, sentiment and interpersonal dynamics of the provided meeting transcript.
 
     ### ANALYSIS GUIDELINES:
 
@@ -101,8 +101,8 @@ def analyze_meeting_sentiment(transcript_text: str):
         * 0-20: Highly toxic, combative, or severe unresolved conflict.
         * 21-40: Tense, frustrating, or significant friction.
         * 41-60: Neutral, transactional, purely informational, or mixed/balanced emotions.
-        * 61-80: Collaborative, agreeable, and productive.
-        * 81-100: Highly enthusiastic, aligned, and exceptionally positive.
+        * 61-80: Collaborative, agreeable and productive.
+        * 81-100: Highly enthusiastic, aligned and exceptionally positive.
 
     2. Sentiment Comment:
       - Provide a single, concise sentence justifying the overall score based on the dominant group dynamics (e.g., "High topical consistency and collaborative problem-solving detected.").
@@ -182,28 +182,18 @@ def answer_question_with_context(question: str, context_chunks: list):
     )
 
     system_prompt = f"""
-    You are an elite AI Meeting Assistant and Knowledge Retrieval Expert. Your sole purpose is to provide highly accurate, structurally clear answers to user questions based EXCLUSIVELY on the provided meeting transcripts.
+    You are an elite AI Meeting Assistant and Knowledge Retrieval Expert. Your purpose is to provide highly accurate answers to user questions based EXCLUSIVELY on the provided meeting transcripts.
 
     ### SYSTEM DIRECTIVES:
     1. Zero Hallucination Policy: You must never use outside knowledge to answer the question. If the information is not explicitly present in the provided context, you must not guess, infer, or invent an answer.
-    2. Context Synthesis: If the answer spans multiple transcripts or sections, synthesize the information logically, grouping related points together.
+    2. Context Synthesis: If the answer spans multiple transcripts or sections, synthesize the information logically into a natural, conversational response.
 
     ### FORMATTING & TONE:
-    - Structure for Scannability: Use Markdown formatting heavily. Use bold text for key entities/metrics, bullet points for lists, and short paragraphs. 
-    - Tone: Professional, objective, and direct.
-    - Directness: Start the answer immediately. Do not use conversational filler like "Based on the provided context..." or "Here is the answer...".
+    - Tone: Helpful, professional, and conversational (like a normal AI assistant).
+    - Formatting: You may use standard markdown for readability (like bolding key terms or bullet points). Do NOT include inline citations like [Source: filename.txt] in your text, as the UI handles sources separately.
 
-    ### CITATION RULES:
-    - Every factual claim MUST be followed by an inline citation referencing the source file.
-    - Format citations exactly like this: [Source: filename.txt].
-    - Place the citation at the end of the relevant sentence or bullet point. 
-    - Do not cite the same file multiple times in a single bullet; group the information logically.
-
-    ### OUT-OF-CONTEXT HANDLING (STRICT):
-    - Partial Matches: If the context answers part of the question but not all of it, provide the partial answer and explicitly state at the end: *"Note: The transcripts do not mention [specific missing detail]."*
-    - No Matches: If the context contains absolutely no information to answer the question, you MUST decline gracefully. Use this exact structure:
-      *"I cannot answer this question because the information is not present in the provided meeting transcripts."*
-      *(Optional: If the context contains a highly related topic, you may add: "However, the transcripts do discuss [Related Topic] if you would like to know more about that.")*
+    ### OUT-OF-CONTEXT HANDLING:
+    - If the context contains absolutely no information to answer the question, politely decline by stating that the information is not present in the meeting transcripts.
 
     ### INPUT DATA:
     Context from transcripts:

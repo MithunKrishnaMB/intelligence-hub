@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+load_dotenv()
+
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -6,7 +10,9 @@ from database import engine, get_db
 from llm_service import extract_meeting_insights, answer_question_with_context, analyze_meeting_sentiment
 from vector_service import add_transcript_to_vector_db, search_transcripts
 from pydantic import BaseModel
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+# pyrefly: ignore [missing-import]
 from fastapi.security import OAuth2PasswordRequestForm
 from auth import get_password_hash, verify_password, create_access_token, get_current_user
 

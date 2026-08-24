@@ -10,13 +10,13 @@
 
 ## 2. Executive Summary
 
-Intelligence Hub transforms raw meeting transcripts into actionable insights using a multi-layered AI pipeline. The system processes .txt and .vtt transcript files to extract core metadata, decisions, action items, and perform behavioral sentiment analysis. 
+Intelligence Hub transforms raw meeting transcripts into actionable insights using a multi-layered AI pipeline. The system processes .txt and .vtt transcript files to extract core metadata, decisions, action items and perform behavioral sentiment analysis. 
 
 Built with a FastAPI backend and a React/Next.js frontend, it leverages Gemini 2.5 Flash for language processing and a local ChromaDB instance to enable a context-aware Retrieval-Augmented Generation (RAG) chatbot, allowing users to query specific meeting contexts.
 
 ## 3. Problem Statement
 
-Professionals spend a significant amount of time manually reviewing meeting recordings and transcripts to compile action items, review key decisions, and recall contextual details. This manual review process leads to:
+Professionals spend a significant amount of time manually reviewing meeting recordings and transcripts to compile action items, review key decisions and recall contextual details. This manual review process leads to:
 
 - Lost productivity and administrative overhead
 - Missed action items or misunderstood context
@@ -47,7 +47,7 @@ Intelligence Hub addresses this by fully automating the post-meeting analysis an
 
 ### In Scope
 
-- User authentication, registration, and isolated tenant storage
+- User authentication, registration and isolated tenant storage
 - End-to-end transcript processing pipeline (chunking, processing, vector embedding)
 - RAG pipeline with "zero hallucination" prompting guidelines
 - Database operations for structured insights
@@ -66,7 +66,7 @@ Intelligence Hub addresses this by fully automating the post-meeting analysis an
 2. Frontend calls `/upload/` API; the backend securely stores the raw text in MariaDB.
 3. User triggers processing via `/transcripts/{id}/process`.
 4. Backend executes:
-   - Synchronous call to Gemini to extract metadata, actions, and decisions.
+   - Synchronous call to Gemini to extract metadata, actions and decisions.
    - Synchronous call to Gemini to analyze chronological segments and speaker sentiment.
    - Synchronous text chunking and ingestion into a local ChromaDB.
 5. Structured insights are saved to the SQL database.
@@ -93,9 +93,9 @@ Intelligence Hub addresses this by fully automating the post-meeting analysis an
 
 ### FR-3: AI Pipeline - Insight Extraction
 
-- Utilize Gemini to extract `meeting_date`, `speakers_identified`, `duration`, and a brief `summary`.
+- Utilize Gemini to extract `meeting_date`, `speakers_identified`, `duration` and a brief `summary`.
 - Identify formalized agreements as `decisions`.
-- Extract `action_items` into structured `owner`, `task`, and `due_date` fields.
+- Extract `action_items` into structured `owner`, `task` and `due_date` fields.
 
 ### FR-4: AI Pipeline - Sentiment Analysis
 
@@ -151,7 +151,7 @@ Maintains transient numerical embeddings representing portions of the transcript
 ### Insight Extractor
 
 - Model: Gemini 2.5 Flash 
-- Output contract: Strict JSON mapping for metadata, decisions array, and action_items array.
+- Output contract: Strict JSON mapping for metadata, decisions array and action_items array.
 - Processing style: Single-shot completion prompt.
 
 ### Behavioral Sentiment Analyst
@@ -208,7 +208,7 @@ Response includes:
 ### 10.3 `GET /dashboard/`
 
 Response includes:
-- Aggregated array of transcripts containing summarized view of total action items, decisions, dates, calculated sentiment colors (red, yellow, emerald), and associated UI icons.
+- Aggregated array of transcripts containing summarized view of total action items, decisions, dates, calculated sentiment colors (red, yellow, emerald) and associated UI icons.
 
 ## 11. Tech Stack Chosen and Rationale
 

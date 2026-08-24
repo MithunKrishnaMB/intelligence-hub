@@ -47,6 +47,12 @@ export default function Header() {
   // Logout Logic
   const handleLogout = () => {
     localStorage.removeItem("token");
+    // Clear chat histories from sessionStorage
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('chat_history_')) {
+        sessionStorage.removeItem(key);
+      }
+    });
     navigate("/login");
   };
 

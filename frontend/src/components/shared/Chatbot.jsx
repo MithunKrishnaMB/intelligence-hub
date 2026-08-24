@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, User, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function Chatbot({ transcriptId }) {
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
@@ -7,10 +8,29 @@ export default function Chatbot({ transcriptId }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  // Initialize with a welcome message
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: "Hello! How can I help you analyze this meeting transcript today?", sources: [] }
-  ]);
+  // Initialize with a welcome message or from sessionStorage
+  const [messages, setMessages] = useState(() => {
+    if (transcriptId) {
+      const saved = sessionStorage.getItem(`chat_history_${transcriptId}`);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse chat history", e);
+        }
+      }
+    }
+    return [
+      { role: 'ai', text: "Hello! How can I help you analyze this meeting transcript today?", sources: [] }
+    ];
+  });
+
+  // Save to sessionStorage whenever messages change
+  useEffect(() => {
+    if (transcriptId) {
+      sessionStorage.setItem(`chat_history_${transcriptId}`, JSON.stringify(messages));
+    }
+  }, [messages, transcriptId]);
 
   // Ref to automatically scroll to the bottom of the chat
   const messagesEndRef = useRef(null);
@@ -109,9 +129,13 @@ export default function Chatbot({ transcriptId }) {
               <div className={`p-3 rounded-2xl text-sm max-w-[85%] leading-relaxed ${
                 msg.role === 'user' 
                   ? 'bg-primary text-on-primary rounded-br-sm' 
-                  : 'bg-surface-container-low text-on-surface border border-outline-variant/10 rounded-bl-sm'
+                  : 'bg-surface-container-low text-on-surface border border-outline-variant/10 rounded-bl-sm [&>p]:mb-2 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_strong]:font-bold'
               }`}>
-                {msg.text}
+                {msg.role === 'ai' ? (
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                ) : (
+                  msg.text
+                )}
               </div>
 
               {/* Render Citations if AI provided them */}

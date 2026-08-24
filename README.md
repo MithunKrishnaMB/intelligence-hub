@@ -6,10 +6,10 @@
 - [Video of Demo](https://drive.google.com/file/d/1DGU9FLmC7F5jcaKX0OEvMwt5g5xdM7-K/view?usp=drive_link)
 
 ## The Problem
-Professionals spend countless hours manually reviewing meeting recordings and transcripts to compile action items, extract key decisions, and recall the contextual details of what was discussed. This tedious process often results in lost productivity, missed deadlines, and a lack of clear alignment on team objectives.
+Professionals spend countless hours manually reviewing meeting recordings and transcripts to compile action items, extract key decisions and recall the contextual details of what was discussed. This tedious process often results in lost productivity, missed deadlines and a lack of clear alignment on team objectives.
 
 ## The Solution
-Meeting Intelligence Hub is a full-stack web application designed to completely automate post-meeting analysis. By allowing users to upload their meeting transcripts, the system leverages AI to automatically extract key metadata, generate concise summaries, and structure all action items and finalized decisions. Additionally, it offers chronological sentiment analysis of the meeting and enables a context-aware Retrieval-Augmented Generation (RAG) chatbot so users can rapidly query their past meetings for specific details without manually rereading the transcripts.
+Meeting Intelligence Hub is a full-stack web application designed to completely automate post-meeting analysis. By allowing users to upload their meeting transcripts, the system leverages AI to automatically extract key metadata, generate concise summaries and structure all action items and finalized decisions. Additionally, it offers chronological sentiment analysis of the meeting and enables a context-aware Retrieval-Augmented Generation (RAG) chatbot so users can rapidly query their past meetings for specific details without manually rereading the transcripts.
 
 ## Tech Stack
 ### Programming Languages
