@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 import chromadb
+# pyrefly: ignore [missing-import]
 from chromadb.utils import embedding_functions
 import os
 
@@ -18,6 +20,7 @@ else:
     print("Connected to local ChromaDB.")
     
 import requests
+# pyrefly: ignore [missing-import]
 from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 
 class DirectGeminiEmbeddingFunction(EmbeddingFunction):
@@ -78,13 +81,33 @@ def search_transcripts(query: str, n_results: int = 5, transcript_id: int = None
     collection = get_collection()
     
     if transcript_id is not None:
-        return collection.query(
+        results = collection.query(
             query_texts=[query],
             n_results=n_results,
             where={"transcript_id": transcript_id} 
         )
     else:
-        return collection.query(
+        results = collection.query(
             query_texts=[query],
             n_results=n_results
         )
+        
+    # Legacy Fallback: If no results found in v2, check the older "transcripts" collection
+    if not results.get('documents') or len(results['documents'][0]) == 0:
+        try:
+            legacy_collection = chroma_client.get_collection(name="transcripts")
+            if transcript_id is not None:
+                results = legacy_collection.query(
+                    query_texts=[query],
+                    n_results=n_results,
+                    where={"transcript_id": transcript_id} 
+                )
+            else:
+                results = legacy_collection.query(
+                    query_texts=[query],
+                    n_results=n_results
+                )
+        except Exception as e:
+            print(f"Legacy fallback failed: {e}")
+            
+    return results
