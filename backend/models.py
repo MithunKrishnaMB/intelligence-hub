@@ -40,7 +40,7 @@ class Decision(Base):
     __tablename__ = "decisions"
 
     id = Column(Integer, primary_key=True, index=True)
-    transcript_id = Column(Integer, ForeignKey("transcripts.id"))
+    transcript_id = Column(Integer, ForeignKey("transcripts.id"), index=True)
     content = Column(Text)
 
     transcript = relationship("Transcript", back_populates="decisions")
@@ -49,7 +49,7 @@ class ActionItem(Base):
     __tablename__ = "action_items"
 
     id = Column(Integer, primary_key=True, index=True)
-    transcript_id = Column(Integer, ForeignKey("transcripts.id"))
+    transcript_id = Column(Integer, ForeignKey("transcripts.id"), index=True)
     owner = Column(String(255)) # Who
     task = Column(Text)         # What
     due_date = Column(String(100)) # By When
@@ -60,7 +60,7 @@ class SegmentSentiment(Base):
     __tablename__ = "segment_sentiments"
 
     id = Column(Integer, primary_key=True, index=True)
-    transcript_id = Column(Integer, ForeignKey("transcripts.id"))
+    transcript_id = Column(Integer, ForeignKey("transcripts.id"), index=True)
     segment_index = Column(Integer) # To keep them in chronological order
     topic = Column(String(255))     # What they were discussing
     vibe = Column(String(50))       # e.g., agreement, conflict, frustration, enthusiasm
@@ -71,7 +71,7 @@ class SpeakerSentiment(Base):
     __tablename__ = "speaker_sentiments"
 
     id = Column(Integer, primary_key=True, index=True)
-    transcript_id = Column(Integer, ForeignKey("transcripts.id"))
+    transcript_id = Column(Integer, ForeignKey("transcripts.id"), index=True)
     speaker = Column(String(100))
     overall_vibe = Column(String(50))
     alignment = Column(Text)        # Brief summary of their stance/concerns

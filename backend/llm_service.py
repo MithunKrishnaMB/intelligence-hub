@@ -1,5 +1,6 @@
 import os
-import requests
+# pyrefly: ignore [missing-import]
+import httpx
 import json
 from dotenv import load_dotenv
 
@@ -9,7 +10,14 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # Using the gemini-2.5-flash model endpoint
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
-def extract_meeting_insights(transcript_text: str):
+# Module-level async client with connection pooling and keep-alive.
+# Reuses TCP connections across requests, avoiding per-call handshake overhead.
+_http_client = httpx.AsyncClient(
+    timeout=httpx.Timeout(120.0, connect=10.0),
+    limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+)
+
+async def extract_meeting_insights(transcript_text: str):
     system_prompt = """
     You are an elite, C-suite level executive assistant and expert AI meeting analyst. Your task is to analyze the provided meeting transcript and extract highly accurate, structured and strategically valuable insights.
 
@@ -77,7 +85,7 @@ def extract_meeting_insights(transcript_text: str):
     }
 
     try:
-        response = requests.post(GEMINI_URL, headers=headers, json=payload)
+        response = await _http_client.post(GEMINI_URL, headers=headers, json=payload)
         response.raise_for_status()
         
         raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
@@ -87,7 +95,7 @@ def extract_meeting_insights(transcript_text: str):
         print(f"Error calling Gemini or parsing JSON: {e}")
         raise Exception(f"Gemini API Error: {str(e)}")
 
-def analyze_meeting_sentiment(transcript_text: str):
+async def analyze_meeting_sentiment(transcript_text: str):
     system_prompt = """
     You are an elite organizational psychologist, behavioral analyst and executive coach. Your task is to analyze the tone, sentiment and interpersonal dynamics of the provided meeting transcript with high emotional intelligence.
 
@@ -163,7 +171,7 @@ def analyze_meeting_sentiment(transcript_text: str):
     headers = {"Content-Type": "application/json"}
 
     try:
-        response = requests.post(GEMINI_URL, headers=headers, json=payload)
+        response = await _http_client.post(GEMINI_URL, headers=headers, json=payload)
         response.raise_for_status()
         raw_content = response.json()['candidates'][0]['content']['parts'][0]['text']
         return json.loads(raw_content.strip())
@@ -171,7 +179,7 @@ def analyze_meeting_sentiment(transcript_text: str):
         print(f"Error calling Gemini for sentiment analysis: {e}")
         raise Exception(f"Gemini API Error: {str(e)}")
 
-def answer_question_with_context(question: str, context_chunks: list):
+async def answer_question_with_context(question: str, context_chunks: list):
     """Passes the user's question and the retrieved ChromaDB chunks to Gemini."""
     
     # Format the retrieved chunks into a readable string for the AI
@@ -215,7 +223,7 @@ def answer_question_with_context(question: str, context_chunks: list):
     headers = {"Content-Type": "application/json"}
 
     try:
-        response = requests.post(GEMINI_URL, headers=headers, json=payload)
+        response = await _http_client.post(GEMINI_URL, headers=headers, json=payload)
         response.raise_for_status()
         
         answer = response.json()['candidates'][0]['content']['parts'][0]['text']

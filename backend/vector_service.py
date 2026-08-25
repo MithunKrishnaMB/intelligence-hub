@@ -54,7 +54,7 @@ class DirectGeminiEmbeddingFunction(EmbeddingFunction):
             
         return embeddings
 
-def get_collection():
+def _get_collection():
     """Uses Google's fast embeddings API natively to avoid dependency conflicts"""
     gemini_ef = DirectGeminiEmbeddingFunction(api_key=os.getenv("GEMINI_API_KEY"))
     return chroma_client.get_or_create_collection(
@@ -62,16 +62,19 @@ def get_collection():
         embedding_function=gemini_ef
     )
 
-def chunk_text(text: str, chunk_size: int = 150, overlap: int = 30):
+# Cache the collection reference at module level.
+# The collection object is stateless and safe to reuse across calls.
+_collection = _get_collection()
+
+def _chunk_text_gen(text: str, chunk_size: int = 150, overlap: int = 30):
+    """Memory-efficient generator that yields text chunks lazily."""
     words = text.split()
-    chunks = []
-    for i in range(0, len(words), chunk_size - overlap):
-        chunk = " ".join(words[i:i + chunk_size])
-        chunks.append(chunk)
-    return chunks
+    step = chunk_size - overlap
+    for i in range(0, len(words), step):
+        yield " ".join(words[i:i + chunk_size])
 
 def add_transcript_to_vector_db(transcript_id: int, filename: str, content: str):
-    chunks = chunk_text(content)
+    chunks = list(_chunk_text_gen(content))
     documents = []
     metadatas = []
     ids = []
@@ -81,23 +84,18 @@ def add_transcript_to_vector_db(transcript_id: int, filename: str, content: str)
         metadatas.append({"transcript_id": transcript_id, "filename": filename})
         ids.append(f"transcript_{transcript_id}_chunk_{i}")
         
-    # Get the collection right here instead
-    collection = get_collection()
-    collection.add(documents=documents, metadatas=metadatas, ids=ids)
+    _collection.add(documents=documents, metadatas=metadatas, ids=ids)
     print(f"Added {len(chunks)} chunks for {filename} to Chroma.")
 
 def search_transcripts(query: str, n_results: int = 5, transcript_id: int = None):
-    # Get the collection right here instead
-    collection = get_collection()
-    
     if transcript_id is not None:
-        results = collection.query(
+        results = _collection.query(
             query_texts=[query],
             n_results=n_results,
             where={"transcript_id": transcript_id} 
         )
     else:
-        results = collection.query(
+        results = _collection.query(
             query_texts=[query],
             n_results=n_results
         )

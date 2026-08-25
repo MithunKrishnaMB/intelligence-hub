@@ -5,8 +5,10 @@ load_dotenv()
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, BackgroundTasks, Path, status
 # pyrefly: ignore [missing-import]
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from typing import List, Optional
+import asyncio
 import models
 from database import engine, get_db
 from llm_service import extract_meeting_insights, answer_question_with_context, analyze_meeting_sentiment
@@ -99,19 +101,30 @@ async def upload_transcripts(files: List[UploadFile] = File(...), db: Session = 
             user_id=current_user.id
         )
         db.add(new_transcript)
-        db.commit()
-        db.refresh(new_transcript)
 
         # After upload, display a summary of each transcript[cite: 21].
         upload_summaries.append({
-            "transcript_id": new_transcript.id,
-            "file_name": new_transcript.filename,
-            "detected_meeting_date": "Pending AI Extraction", # Placeholder for Day 2
-            "speakers_identified": 0, # Placeholder for Day 2
-            "total_word_count": new_transcript.word_count
+            "transcript_obj": new_transcript,
+            "file_name": file.filename,
         })
 
-    return {"message": "Files uploaded successfully", "summaries": upload_summaries}
+    # Single commit for the entire batch instead of per-file commits
+    db.commit()
+    
+    # Refresh and build response after the single commit
+    result_summaries = []
+    for item in upload_summaries:
+        obj = item["transcript_obj"]
+        db.refresh(obj)
+        result_summaries.append({
+            "transcript_id": obj.id,
+            "file_name": item["file_name"],
+            "detected_meeting_date": "Pending AI Extraction", # Placeholder for Day 2
+            "speakers_identified": 0, # Placeholder for Day 2
+            "total_word_count": obj.word_count
+        })
+
+    return {"message": "Files uploaded successfully", "summaries": result_summaries}
 
 @app.post("/transcripts/{transcript_id}/process")
 async def process_transcript(
@@ -129,9 +142,11 @@ async def process_transcript(
         raise HTTPException(status_code=404, detail="Transcript not found")
 
     try:
-        # 2. Call the AI Services
-        insights = extract_meeting_insights(transcript.content)
-        sentiment_data = analyze_meeting_sentiment(transcript.content)
+        # 2. Call BOTH AI Services concurrently — cuts latency ~50%
+        insights, sentiment_data = await asyncio.gather(
+            extract_meeting_insights(transcript.content),
+            analyze_meeting_sentiment(transcript.content),
+        )
 
         # 3. Update Transcript Metadata
         # We safely extract the metadata, defaulting to empty dictionary if missing
@@ -143,36 +158,37 @@ async def process_transcript(
         transcript.overall_sentiment_score = sentiment_data.get("overall_sentiment_score", 50)
         transcript.sentiment_comment = sentiment_data.get("sentiment_comment", "General discussion without strong sentiment swings.")
 
-        # 4. Store Decisions & Action Items
+        # 4. Batch-insert all child records using add_all() instead of per-item add()
+        child_records = []
+
         for dec_text in insights.get("decisions", []):
-            db.add(models.Decision(transcript_id=transcript.id, content=dec_text))
+            child_records.append(models.Decision(transcript_id=transcript.id, content=dec_text))
 
         for item in insights.get("action_items", []):
-            db.add(models.ActionItem(
+            child_records.append(models.ActionItem(
                 transcript_id=transcript.id,
                 owner=item.get("owner", "Unknown"),
                 task=item.get("task", "Unknown"),
                 due_date=item.get("due_date", "Not specified")
             ))
 
-        # 5. Store Sentiment Segments
         for seg in sentiment_data.get("segments", []):
-            db.add(models.SegmentSentiment(
+            child_records.append(models.SegmentSentiment(
                 transcript_id=transcript.id,
                 segment_index=seg.get("segment_index", 0),
                 topic=seg.get("topic", "Unknown"),
                 vibe=seg.get("vibe", "neutral")
             ))
 
-        # 6. Store Speaker Sentiments
         for spk in sentiment_data.get("speakers", []):
-            db.add(models.SpeakerSentiment(
+            child_records.append(models.SpeakerSentiment(
                 transcript_id=transcript.id,
                 speaker=spk.get("speaker", "Unknown"),
                 overall_vibe=spk.get("overall_vibe", "neutral"),
                 alignment=spk.get("alignment", "")
             ))
 
+        db.add_all(child_records)
         db.commit()
 
         # 7. Add to Vector DB for the Chatbot in the background
@@ -224,29 +240,28 @@ async def chat_with_transcripts(
             transcript_id=request.transcript_id
         )
         
-        # 2. Package the results cleanly
+        # 2. Package the results cleanly using zip() instead of index-based iteration
         context_chunks = []
         if search_results['documents'] and len(search_results['documents'][0]) > 0:
             docs = search_results['documents'][0]
             metadatas = search_results['metadatas'][0]
             
-            for i in range(len(docs)):
-                context_chunks.append({
-                    "text": docs[i],
-                    "filename": metadatas[i]["filename"]
-                })
+            context_chunks = [
+                {"text": doc, "filename": meta["filename"]}
+                for doc, meta in zip(docs, metadatas)
+            ]
 
         # 3. If no chunks found, return early
         if not context_chunks:
             return {"answer": "I could not find any information regarding that in this meeting."}
 
-        # 4. Pass the context and the question to Gemini
-        answer = answer_question_with_context(request.question, context_chunks)
+        # 4. Pass the context and the question to Gemini (now async)
+        answer = await answer_question_with_context(request.question, context_chunks)
         
         return {
             "question": request.question,
             "answer": answer,
-            "sources_used": list(set([chunk["filename"] for chunk in context_chunks])) # Deduplicate sources
+            "sources_used": list({chunk["filename"] for chunk in context_chunks})  # Set comprehension for dedup
         }
 
     except Exception as e:
@@ -259,21 +274,46 @@ async def chat_with_transcripts(
 
 @app.get("/dashboard/")
 async def get_dashboard_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    # Only fetch transcripts belonging to THIS user
-    transcripts = db.query(models.Transcript).filter(
-        models.Transcript.user_id == current_user.id
-    ).order_by(models.Transcript.upload_date.desc()).all()
-    
+    """
+    Optimized: Single aggregated query replaces the N+1 loop.
+    Previously: 1 query for transcripts + 2 COUNT queries per transcript (101 queries for 50 transcripts).
+    Now: 1 query total using outerjoin + group_by.
+    """
+    # Subqueries for action_items and decisions counts
+    actions_sub = (
+        db.query(
+            models.ActionItem.transcript_id,
+            func.count(models.ActionItem.id).label("actions_count")
+        )
+        .group_by(models.ActionItem.transcript_id)
+        .subquery()
+    )
+    decisions_sub = (
+        db.query(
+            models.Decision.transcript_id,
+            func.count(models.Decision.id).label("decisions_count")
+        )
+        .group_by(models.Decision.transcript_id)
+        .subquery()
+    )
+
+    # Single query joining transcript with pre-aggregated counts
+    rows = (
+        db.query(
+            models.Transcript,
+            func.coalesce(actions_sub.c.actions_count, 0).label("actions_count"),
+            func.coalesce(decisions_sub.c.decisions_count, 0).label("decisions_count"),
+        )
+        .outerjoin(actions_sub, models.Transcript.id == actions_sub.c.transcript_id)
+        .outerjoin(decisions_sub, models.Transcript.id == decisions_sub.c.transcript_id)
+        .filter(models.Transcript.user_id == current_user.id)
+        .order_by(models.Transcript.upload_date.desc())
+        .all()
+    )
+
     dashboard_data = []
     
-    for t in transcripts:
-        # Count action items and decisions for this specific transcript
-        actions_count = db.query(models.ActionItem).filter(models.ActionItem.transcript_id == t.id).count()
-        decisions_count = db.query(models.Decision).filter(models.Decision.transcript_id == t.id).count()
-        
-        # Format the date
-        formatted_date = t.upload_date.isoformat() + "Z" if t.upload_date else None
-
+    for t, actions_count, decisions_count in rows:
         # Determine UI colors and icons based on the AI's score
         score = t.overall_sentiment_score
         if score >= 70:
@@ -307,25 +347,36 @@ async def get_dashboard_stats(db: Session = Depends(get_db), current_user: model
 
 @app.get("/transcripts/{transcript_id}/details")
 async def get_transcript_details(transcript_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    # 1. Fetch the main transcript record
-    transcript = db.query(models.Transcript).filter(
-        models.Transcript.id == transcript_id,
-        models.Transcript.user_id == current_user.id
-    ).first()
+    """
+    Optimized: Uses joinedload() to eagerly load all child relationships in a single query
+    instead of 5 separate queries (transcript + decisions + actions + segments + speakers).
+    """
+    # Single query with eager loading of all relationships
+    transcript = (
+        db.query(models.Transcript)
+        .options(
+            joinedload(models.Transcript.decisions),
+            joinedload(models.Transcript.action_items),
+            joinedload(models.Transcript.segments),
+            joinedload(models.Transcript.speaker_sentiments),
+        )
+        .filter(
+            models.Transcript.id == transcript_id,
+            models.Transcript.user_id == current_user.id
+        )
+        .first()
+    )
     
     if not transcript:
         raise HTTPException(status_code=404, detail="Transcript not found")
 
-    # 2. Fetch all related data
-    decisions = db.query(models.Decision).filter(models.Decision.transcript_id == transcript_id).all()
-    actions = db.query(models.ActionItem).filter(models.ActionItem.transcript_id == transcript_id).all()
-    segments = db.query(models.SegmentSentiment).filter(models.SegmentSentiment.transcript_id == transcript_id).order_by(models.SegmentSentiment.segment_index).all()
-    speakers = db.query(models.SpeakerSentiment).filter(models.SpeakerSentiment.transcript_id == transcript_id).all()
+    # Sort segments in Python (trivial for small lists) instead of a separate ORDER BY query
+    sorted_segments = sorted(transcript.segments, key=lambda s: s.segment_index)
 
-    # 3. Format the date (handling potentially missing data)
+    # Format the date (handling potentially missing data)
     formatted_date = transcript.upload_date.isoformat() + "Z" if transcript.upload_date else None
 
-    # 4. Package and return
+    # Package and return
     return {
         "id": transcript.id,
         "filename": transcript.filename,
@@ -336,10 +387,10 @@ async def get_transcript_details(transcript_id: int, db: Session = Depends(get_d
         "summary": transcript.summary,
         "overall_sentiment_score": transcript.overall_sentiment_score,
         "sentiment_comment": transcript.sentiment_comment,
-        "decisions": [{"id": d.id, "content": d.content} for d in decisions],
-        "action_items": [{"id": a.id, "owner": a.owner, "task": a.task, "due_date": a.due_date} for a in actions],
-        "segments": [{"id": s.id, "segment_index": s.segment_index, "topic": s.topic, "vibe": s.vibe} for s in segments],
-        "speakers": [{"id": sp.id, "speaker": sp.speaker, "overall_vibe": sp.overall_vibe, "alignment": sp.alignment} for sp in speakers]
+        "decisions": [{"id": d.id, "content": d.content} for d in transcript.decisions],
+        "action_items": [{"id": a.id, "owner": a.owner, "task": a.task, "due_date": a.due_date} for a in transcript.action_items],
+        "segments": [{"id": s.id, "segment_index": s.segment_index, "topic": s.topic, "vibe": s.vibe} for s in sorted_segments],
+        "speakers": [{"id": sp.id, "speaker": sp.speaker, "overall_vibe": sp.overall_vibe, "alignment": sp.alignment} for sp in transcript.speaker_sentiments]
     }
 
 @app.get("/transcripts/{transcript_id}/pdf")
@@ -350,10 +401,9 @@ async def export_transcript_pdf(transcript_id: int, db: Session = Depends(get_db
     # 2. Generate PDF
     pdf_buffer = generate_meeting_pdf(data)
     
-    # 3. Create a safe filename
+    # 3. Create a safe filename using generator expression
     filename = data.get("filename", f"meeting_{transcript_id}")
-    # Replace unsafe characters for headers
-    safe_filename = "".join([c for c in filename if c.isalpha() or c.isdigit() or c in (' ', '-', '_')]).rstrip()
+    safe_filename = "".join(c for c in filename if c.isalpha() or c.isdigit() or c in (' ', '-', '_')).rstrip()
     
     return StreamingResponse(
         pdf_buffer, 
