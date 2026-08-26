@@ -3,82 +3,84 @@
 ## Live Demo
 
 - [Website Link](https://intelligence-hub-eta.vercel.app/)
-- [Video of Demo](https://drive.google.com/file/d/1DGU9FLmC7F5jcaKX0OEvMwt5g5xdM7-K/view?usp=drive_link)
 
 ## The Problem
-Professionals spend countless hours manually reviewing meeting recordings and transcripts to compile action items, extract key decisions and recall the contextual details of what was discussed. This tedious process often results in lost productivity, missed deadlines and a lack of clear alignment on team objectives.
+
+Organizations generate large volumes of meeting transcripts, but extracting actionable insights, decisions and sentiments from these text files is time-consuming. Without an automated way to process transcripts, crucial action items get lost, sentiment trends are missed and retrieving specific details from past meetings requires tedious manual searching.
 
 ## The Solution
-Meeting Intelligence Hub is a full-stack web application designed to completely automate post-meeting analysis. By allowing users to upload their meeting transcripts, the system leverages AI to automatically extract key metadata, generate concise summaries and structure all action items and finalized decisions. Additionally, it offers chronological sentiment analysis of the meeting and enables a context-aware Retrieval-Augmented Generation (RAG) chatbot so users can rapidly query their past meetings for specific details without manually rereading the transcripts.
+
+Meeting Intelligence Hub is an AI-powered platform that processes meeting transcripts to extract structured insights. It leverages a backend pipeline to automatically identify decisions, action items, meeting segments and speaker sentiments. It also features a conversational AI chatbot that uses vector search to precisely answer questions based solely on the meeting context. The application provides a React-based dashboard for visualization and PDF export functionality.
 
 ## Tech Stack
-### Programming Languages
-- Python
-- JavaScript
 
-### Frameworks
-- **Backend:** FastAPI, SQLAlchemy
-- **Frontend:** React (Vite), Tailwind CSS
-
-### Databases
-- **Relational DB:** MariaDB / MySQL
-- **Vector DB:** ChromaDB (Local persistent client)
-
-### APIs & Third-Party Tools
-- **AI Models:** Google Gemini API (Gemini 2.5 Flash)
-- **Embeddings:** all-MiniLM-L6-v2 (via Sentence-Transformers)
+- Programming languages: Python, JavaScript, HTML, CSS
+- Frontend frameworks and UI: React, Vite, Tailwind CSS, React Router DOM, Lucide React
+- Backend frameworks and orchestration: FastAPI, Uvicorn, SQLAlchemy
+- AI and model runtimes: Google Gemini API (gemini-2.5-flash)
+- Databases: MariaDB (via PyMySQL) for relational data, ChromaDB for vector storage
+- APIs and third-party tools: python-multipart (uploads), PyJWT/Bcrypt (auth), ReportLab (PDF generation)
 
 ## Setup Instructions
 
-### Prerequisites
-- Python 3.9+
-- Node.js (v18+) & npm
-- MariaDB or MySQL running locally
+### 1. Clone the repository
 
-### 1. Database Configuration
-Ensure you have a MariaDB or MySQL instance running. Create an empty database named `intelligence_hub`. 
-You must also update the connection string inside `backend/database.py` (line 4) to match your local database credentials (e.g., username, password, host, port).
+```bash
+git clone <your_repo_url>
+cd intelligence-hub
+```
 
-### 2. Backend Setup
-1. Open your terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-3. Install the core dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Set up environment variables:
-   Create a `.env` file in the `backend` folder and add your Google Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-5. Run the FastAPI development server:
-   ```bash
-   uvicorn main:app --reload
-   ```
-   *(The app will automatically create all necessary tables in MariaDB upon startup).*
+### 2. Backend setup (Python)
 
-### 3. Frontend Setup
-1. Open a new terminal window and navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install the necessary Node.js dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+cd backend
+python -m venv venv
+```
 
-Once both servers are running, access the user interface in your web browser at the local host address provided by Vite (typically `http://localhost:5173`) to start using the Meeting Intelligence Hub.
+Windows PowerShell:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+Install backend dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create `backend/.env` and set your variables:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+DATABASE_URL=mysql+pymysql://root:password@localhost:3306/intelligence_hub
+```
+Make sure MariaDB is running locally and the `intelligence_hub` database is created.
+
+### 3. Frontend setup (React via Vite)
+
+```bash
+cd ../frontend
+npm install
+```
+
+### 4. Run the project locally
+
+Start backend (Terminal 1):
+
+```bash
+cd backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Start frontend (Terminal 2):
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open:
+
+- Frontend: http://localhost:5173
+- Backend API docs: http://localhost:8000/docs
