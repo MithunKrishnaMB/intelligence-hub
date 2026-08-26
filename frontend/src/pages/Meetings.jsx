@@ -19,7 +19,7 @@ export default function Meetings() {
         }
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch('http://localhost:8000/dashboard/', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/dashboard/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

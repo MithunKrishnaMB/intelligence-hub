@@ -26,7 +26,7 @@ export default function Dashboard() {
         }
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch('http://localhost:8000/dashboard/', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/dashboard/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -106,7 +106,7 @@ export default function Dashboard() {
                 formData.append('files', file);
             });
             
-            const uploadRes = await fetch('http://localhost:8000/upload/', {
+            const uploadRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/upload/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -121,7 +121,7 @@ export default function Dashboard() {
             setProgressPercent(60);
             
             for (const summary of uploadData.summaries) {
-                const processRes = await fetch(`http://localhost:8000/transcripts/${summary.transcript_id}/process`, {
+                const processRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/transcripts/${summary.transcript_id}/process`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`

@@ -61,7 +61,7 @@ export default function MeetingDetail() {
 
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`http://localhost:8000/transcripts/${id}/details`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/transcripts/${id}/details`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -81,7 +81,7 @@ export default function MeetingDetail() {
         setIsDeleting(true);
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`http://localhost:8000/transcripts/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/transcripts/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -99,7 +99,7 @@ export default function MeetingDetail() {
         setIsExporting(true);
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch(`http://localhost:8000/transcripts/${id}/pdf`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/transcripts/${id}/pdf`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -135,7 +135,7 @@ export default function MeetingDetail() {
 
         try {
             const token = localStorage.getItem('access_token');
-            const response = await fetch('http://localhost:8000/chat', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://intelligence-hub.onrender.com'}/chat`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,

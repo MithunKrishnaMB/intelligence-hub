@@ -28,7 +28,11 @@ app = FastAPI(title="Meeting Intelligence Hub API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, change this to your frontend URL
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:3000",
+        "https://intelligence-hub-eta.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
